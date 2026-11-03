@@ -20,6 +20,8 @@ jobs:
             exit 0
           fi
           curl -fsS -X POST \
-            -H "Authorization: Bearer $PACKAGIST_TOKEN" \
-            "https://packagist.org/api/update-package?username=alvesbeto"
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer ${PACKAGIST_USER:-alvesbeto}:${PACKAGIST_TOKEN}" \
+            -d '{"repository":"https://github.com/alvesbeto/mysql2pdo"}' \
+            "https://packagist.org/api/update-package"
           echo "Packagist update requested for alvesbeto/mysql2pdo"

@@ -52,8 +52,10 @@ Webhook troubleshooting (403 on delivery):
 3. Optional backup: GitHub secret **`PACKAGIST_TOKEN`** for the workflow above.
 
 ```bash
-curl -XPOST -H "Authorization: Bearer $PACKAGIST_TOKEN" \
-  'https://packagist.org/api/update-package?username=alvesbeto'
+curl -XPOST -H 'Content-Type: application/json' \
+  -H "Authorization: Bearer alvesbeto:$PACKAGIST_TOKEN" \
+  -d '{"repository":"https://github.com/alvesbeto/mysql2pdo"}' \
+  'https://packagist.org/api/update-package'
 ```
 
 ## Consumer install (stable apps)
