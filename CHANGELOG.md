@@ -2,6 +2,13 @@
 
 All notable changes to **alvesbeto/mysql2pdo** (PDO-backed `mysql_*` shim).
 
+## [1.0.1] - 2026-11-03
+
+### Changed
+
+- README aligned with 1.0.0 behavior (`mysql_close`, Packagist install, migration helpers).
+- Release runbook: SSH remote, tags, Packagist sync (`.agents/runbooks/release.md`).
+
 ## [1.0.0] - 2026-11-03
 
 First stable release on **PDO** (`ext-pdo`). Package name `alvesbeto/mysql2pdo`; namespace `Mysql2pdo\`; facade `mysql2pdo`.

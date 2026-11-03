@@ -29,20 +29,15 @@ You must install and enable `ext-pdo` and the MySQL PDO driver in `php.ini`. Thi
 
 ### From Packagist (recommended)
 
-```bash
-composer require alvesbeto/mysql2pdo
-```
-
-After the package is submitted to [Packagist](https://packagist.org/packages/alvesbeto/mysql2pdo), that is the normal way to install it. Prefer a tagged release when available, for example:
+Stable release **1.0.0+** on [Packagist](https://packagist.org/packages/alvesbeto/mysql2pdo):
 
 ```bash
 composer require alvesbeto/mysql2pdo:^1.0
 ```
 
-**Not on Packagist yet?** Point Composer at the GitHub repository, then require `dev-main`:
+For bleeding-edge `main`:
 
 ```bash
-composer config repositories.mysql2pdo vcs https://github.com/alvesbeto/mysql2pdo
 composer require alvesbeto/mysql2pdo:dev-main
 ```
 
@@ -178,6 +173,7 @@ If the shim is included twice in one request, guards skip redefinition:
 |--------|---------|
 | `mysql_multi_query_script($link, $script)` | Run a multi-statement SQL script via PDO, draining result sets |
 | `mysql2pdo::resolveLink($link)` | Normalize a link to `ShimLink` (advanced / internal) |
+| `is_resource_custom($var)` / `get_resource_type_custom($var)` | Legacy `is_resource` / `get_resource_type` migration helpers |
 
 See [docs/API.md](docs/API.md) for the full function list and return types.
 
@@ -203,11 +199,11 @@ Global **`mysql_*`** and **`mysql2pdo::`** remain the default for legacy apps.
 
 ### Connection handles and `is_resource()`
 
-On PHP 8, `$link` and query results are shim objects. Replace `is_resource($link)` with `$link instanceof \Mysql2pdo\Driver\ShimLink` (and your app’s connection bootstrap). Before freeing, guard with a truthy `$result`; **`mysql_free_result($result)`** is a safe no-op when the result is invalid (same pattern as classic apps that skipped `is_resource` checks).
+On PHP 8, `$link` and query results are shim objects. Prefer **`is_resource_custom($link)`** or `$link instanceof \Mysql2pdo\Driver\ShimLink` (and your app’s connection bootstrap). Before freeing, guard with a truthy `$result`; **`mysql_free_result($result)`** is a safe no-op when the result is invalid.
 
 ### `mysql_close()`
 
-For long-running scripts and shutdown handlers, **`mysql_close()` does not tear down the socket**. It usually returns `true` without aggressively closing. The connection ends when the PHP request finishes. Do not rely on it to free the connection mid-request.
+**`mysql_close()`** clears the current link when applicable and **releases the PDO handle** (`ShimLink::$pdo` becomes null). It still returns **`true`** for invalid links (shutdown-handler friendly). After close, **`mysql_ping`** fails until you **`mysql_connect`** again—useful in long-lived workers and serverless-style runtimes.
 
 ### Deprecated helpers
 
