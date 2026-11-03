@@ -2,6 +2,12 @@
 
 All notable changes to **alvesbeto/mysql2pdo** (PDO-backed `mysql_*` shim).
 
+## [1.0.5] - 2026-11-03
+
+### Changed
+
+- **Packagist:** [`.packagist.yml`](.packagist.yml) excludes branch `main` so only semver **tags** are published (no **`dev-main`**). CI Packagist workflow runs on **`v*`** tags only.
+
 ## [1.0.4] - 2026-11-03
 
 ### Added

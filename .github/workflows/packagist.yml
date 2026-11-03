@@ -1,11 +1,9 @@
-# Sync Packagist when main or version tags change.
+# Sync Packagist when a stable release tag is pushed (see .packagist.yml — no dev-main).
 # Requires repository secret PACKAGIST_TOKEN (Packagist profile → Show API Token).
 name: Packagist
 
 on:
   push:
-    branches:
-      - main
     tags:
       - 'v*'
 

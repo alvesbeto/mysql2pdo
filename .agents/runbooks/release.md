@@ -33,24 +33,23 @@ git push origin v1.0.0 --force
 
 Package: [packagist.org/packages/alvesbeto/mysql2pdo](https://packagist.org/packages/alvesbeto/mysql2pdo)
 
-**How Packagist versions work (not “branch main” vs “dev-main”):**
+**Policy:** development happens on Git branch **`main`**, but Packagist publishes **stable tags only**. Root [`.packagist.yml`](../../.packagist.yml) excludes branch `main`, so Composer does **not** offer **`dev-main`**. Consumers install **`^1.0`** (or a pinned **`1.x.y`**).
 
 | Composer version | Git source |
 |------------------|------------|
-| **`1.0.4`, `1.0.3`, …** | Annotated tags `v1.0.4`, `v1.0.3`, … on **`main`** |
-| **`dev-main`** | Tip of GitHub branch **`main`** |
+| **`1.0.5`, `1.0.4`, …** | Annotated tags `v1.0.5`, `v1.0.4`, … on **`main`** |
 
-Stable installs use **`composer require alvesbeto/mysql2pdo:^1.0`**, not `dev-main`. If Packagist lists **only** old `dev-main` (e.g. commit `54c0a4a`), the index never refreshed after your tags—**not** because you pushed to the wrong branch.
+Release checklist:
 
-After push or new tag, Packagist should show **`1.0.x`** and current **`dev-main`**. If only stale `dev-main` appears:
+1. Merge or commit on **`main`**, push **`main`**.
+2. Create and push tag **`vX.Y.Z`** (this triggers Packagist refresh via webhook and [`.github/workflows/packagist.yml`](../../.github/workflows/packagist.yml)).
+3. If versions lag, Packagist → **Update** (manual sync).
 
-1. Log in on Packagist → [alvesbeto/mysql2pdo](https://packagist.org/packages/alvesbeto/mysql2pdo) → **Update** (manual sync — works without API token).
-2. Confirm **GitHub hook** on the repo (`Settings → Webhooks`):
-   - URL: `https://packagist.org/api/github?username=alvesbeto`
-   - Content type: `application/json`
-   - Secret: must match **Packagist profile → GitHub Secret** (not the API token). Deliveries returning **403** mean the secret is wrong — paste the Packagist secret into the GitHub webhook and save, then **Redeliver** a recent push event.
-3. **GitHub Actions (recommended backup):** add repo secret **`PACKAGIST_TOKEN`** (Packagist profile → Show API Token). Workflow [`.github/workflows/packagist.yml`](../../.github/workflows/packagist.yml) runs on push to `main` and on tags `v*`.
-4. Optional one-off API refresh:
+Webhook troubleshooting (403 on delivery):
+
+1. GitHub repo → **Settings → Webhooks** → URL `https://packagist.org/api/github?username=alvesbeto`
+2. Secret must match **Packagist profile → GitHub Secret** (not the API token).
+3. Optional backup: GitHub secret **`PACKAGIST_TOKEN`** for the workflow above.
 
 ```bash
 curl -XPOST -H "Authorization: Bearer $PACKAGIST_TOKEN" \
@@ -62,5 +61,3 @@ curl -XPOST -H "Authorization: Bearer $PACKAGIST_TOKEN" \
 ```bash
 composer require alvesbeto/mysql2pdo:^1.0
 ```
-
-Requires Packagist index to include the **`1.0.0`** (or newer) stable version—not `dev-main` only.

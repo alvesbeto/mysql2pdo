@@ -1,0 +1,4 @@
+# Stable releases only: Git tags (vX.Y.Z). Do not index branch main as dev-main.
+branches:
+  exclude:
+    - main
