@@ -2,6 +2,16 @@
 
 All notable changes to **alvesbeto/mysql2pdo** (PDO-backed `mysql_*` shim).
 
+## [1.0.3] - 2026-11-03
+
+### Changed
+
+- Removed **`E_USER_DEPRECATED`** from `mysql_pconnect()` and `mysql_escape_string()` — this library replaces the removed `mysql_*` extension without nagging legacy callers.
+
+### Fixed
+
+- **`mysql_close()`** idempotent: closes PDO only when the link is still connected; repeated close, invalid handles, and `mysql_close()` with no open link return `true` without warnings.
+
 ## [1.0.2] - 2026-11-03
 
 ### Changed

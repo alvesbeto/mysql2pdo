@@ -38,7 +38,7 @@ Func is a **thin delegate** (no extra guards). Class sets `$link = $currObj` whe
 
 ## `mysql_close`
 
-Clears `$currObj` when closing the current link; **`PdoExecutor::closeLink`** sets `$link->pdo` and `$link->host_info` to **null** (releases PDO for long-lived workers / serverless). Still returns `true` for invalid or already-closed links (shutdown-handler friendly).
+Clears `$currObj` when closing that link; **`PdoExecutor::closeLink`** sets `$link->pdo` and `$link->host_info` to **null** only when the link is still connected. **Idempotent:** second `mysql_close()` on the same handle, invalid non-`ShimLink` arguments, and close with no open connection return **`true`** without warnings. Still returns `true` for failed connect handles (`connect_errno` ≠ 0).
 
 ## `mysql_info`
 
@@ -63,8 +63,7 @@ Link validity for application code: use bootstrap-owned `$link` / `$currObj`, or
 
 ## Deprecations (func layer)
 
-- `mysql_escape_string` → `E_USER_DEPRECATED`
-- `mysql_pconnect` → `E_USER_DEPRECATED`
+This package **does not** emit `E_USER_DEPRECATED` on legacy `mysql_*` symbols. Apps are expected to keep calling the historical API until they choose to migrate to PDO/ORM themselves.
 
 ## Guards
 

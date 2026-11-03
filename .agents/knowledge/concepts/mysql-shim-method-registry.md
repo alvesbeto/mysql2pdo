@@ -48,9 +48,9 @@ Human-long signatures: [docs/API.md](../../../docs/API.md). Invariants: [specs/s
 | Symbol | Class L | Func L | Backend / notes | Func |
 |--------|---------|--------|-----------------|------|
 | `mysql_connect` | 57 | 58 | Reuses valid `$currObj` when `$new_link` false; else `PdoExecutor::connect` with `$client_flags` (SSL env); **no** implicit charset | — |
-| `mysql_pconnect` | 498 | 285 | Always new `p:` connect; **no** reuse of valid `$currObj`; always `self::$currObj = $link`; `$new_link`/`$client_flags` unused in class; failure: `error_log` + **echo** in class | dep |
+| `mysql_pconnect` | 498 | 285 | Always new `p:` connect; **no** reuse of valid `$currObj`; honors `$client_flags` (SSL env); `$new_link` ignored in class; failure: `error_log` + **echo** in class | — |
 | `mysql_select_db` | 589 | 332 | `PdoExecutor::selectDb`; if explicit `$link` is connected, sets `$currObj`; empty `$dbname` → false | — |
-| `mysql_close` | 37 | 45 | `PdoExecutor::closeLink` (null PDO); `$isClosing` guard; func early `true` if link invalid | guard |
+| `mysql_close` | 37 | 45 | `closeLink` only if connected; idempotent; `$isClosing` guard | guard |
 | `mysql_ping` | 511 | 291 | `SELECT 1` + free result, not `SELECT 1 via PdoExecutor` | — |
 
 ---
@@ -121,7 +121,7 @@ Human-long signatures: [docs/API.md](../../../docs/API.md). Invariants: [specs/s
 | Symbol | Class L | Func L | Backend / notes | Func |
 |--------|---------|--------|-----------------|------|
 | `mysql_real_escape_string` | 555 | 318 | `PdoExecutor::realEscapeString`; if closing/invalid link → `addslashes` | — |
-| `mysql_escape_string` | 203 | 113 | Uses `$currObj` or `addslashes`; insecure legacy | dep |
+| `mysql_escape_string` | 203 | 113 | Uses `$currObj` or `addslashes`; legacy (prefer `mysql_real_escape_string` when a link exists) | — |
 | `mysql_set_charset` | 612 | 337 | `PdoExecutor::setCharset` | — |
 
 ---

@@ -48,10 +48,18 @@ if (!function_exists('mysql_affected_rows')) {
     function mysql_close($link = null)
     {
         if ($link === null) {
-            $link = mysql2pdo::$currObj;
+            $link = mysql2pdo::$currObj ?? null;
         }
 
-        if (!$link || !($link instanceof ShimLink) || $link->connect_errno) {
+        if (!($link instanceof ShimLink) || $link->connect_errno !== 0) {
+            return true;
+        }
+
+        if (!$link->isConnected()) {
+            if (mysql2pdo::$currObj === $link) {
+                mysql2pdo::$currObj = null;
+            }
+
             return true;
         }
 
@@ -115,7 +123,7 @@ if (!function_exists('mysql_affected_rows')) {
 
     function mysql_escape_string($escapestr)
     {
-        trigger_error('mysql_escape_string() is deprecated and insecure. Use mysql_real_escape_string() or prepared statements instead.', E_USER_DEPRECATED);
+
         return mysql2pdo::mysql_escape_string($escapestr);
     }
 
@@ -287,7 +295,6 @@ if (!function_exists('mysql_affected_rows')) {
 
     function mysql_pconnect($host = '', $username = '', $passwd = '', $new_link = false, $client_flags = 0)
     {
-        trigger_error('mysql_pconnect() is deprecated. Use PDO with persistent connections instead.', E_USER_DEPRECATED);
         return mysql2pdo::mysql_pconnect($host, $username, $passwd, $new_link, $client_flags);
     }
 

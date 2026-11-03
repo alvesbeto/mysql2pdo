@@ -13,17 +13,27 @@ final class MysqlClose
 {
     public static function invoke($link = null)
     {
-        if (empty($link)) {
+        if ($link === null) {
             $link = LinkContext::getCurrObj();
+        }
+
+        if (!($link instanceof ShimLink) || $link->connect_errno !== 0) {
+            return true;
         }
 
         LinkContext::setClosing(true);
 
-        if (!$link || !($link instanceof ShimLink) || $link->connect_errno) {
+        if (!$link->isConnected()) {
+            if (LinkContext::getCurrObj() === $link) {
+                LinkContext::setCurrObj(null);
+            }
+
             return true;
         }
 
-        LinkContext::setCurrObj(null);
+        if (LinkContext::getCurrObj() === $link) {
+            LinkContext::setCurrObj(null);
+        }
 
         PdoExecutor::closeLink($link);
 

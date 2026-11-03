@@ -37,7 +37,6 @@ final class MysqlFunctionsTest extends IntegrationTestCase
 
     public function test_mysql_pconnect(): void
     {
-        $this->expectUserDeprecationMessage('mysql_pconnect() is deprecated. Use PDO with persistent connections instead.');
         $p = mysql_pconnect(
             TestDatabase::hostWithPort(),
             TestDatabase::user(),
@@ -65,6 +64,8 @@ final class MysqlFunctionsTest extends IntegrationTestCase
         $this->assertTrue(mysql_close($extra));
         $this->assertNull($extra->pdo);
         $this->assertFalse(mysql_ping($extra));
+        $this->assertTrue(mysql_close($extra));
+        $this->assertTrue(mysql_close(null));
     }
 
     public function test_mysql_ping(): void
@@ -359,7 +360,6 @@ final class MysqlFunctionsTest extends IntegrationTestCase
 
     public function test_mysql_escape_string(): void
     {
-        $this->expectUserDeprecationMessage('mysql_escape_string() is deprecated and insecure. Use mysql_real_escape_string() or prepared statements instead.');
         $escaped = mysql_escape_string("x'y");
         $this->assertIsString($escaped);
     }

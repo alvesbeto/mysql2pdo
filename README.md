@@ -205,12 +205,14 @@ On PHP 8, `$link` and query results are shim objects. Prefer **`is_resource_cust
 
 **`mysql_close()`** clears the current link when applicable and **releases the PDO handle** (`ShimLink::$pdo` becomes null). It still returns **`true`** for invalid links (shutdown-handler friendly). After close, **`mysql_ping`** fails until you **`mysql_connect`** again—useful in long-lived workers and serverless-style runtimes.
 
-### Deprecated helpers
+### Legacy API notes
 
-| Function | What happens |
-|----------|----------------|
-| `mysql_escape_string()` | Emits `E_USER_DEPRECATED`; use `mysql_real_escape_string()` or prepared statements |
-| `mysql_pconnect()` | Emits `E_USER_DEPRECATED`; always new `p:` connect (does not reuse `$currObj` like `mysql_connect`); may echo connect errors |
+| Function | Note |
+|----------|------|
+| `mysql_escape_string()` | No connection required; less accurate than `mysql_real_escape_string()` when a link is available |
+| `mysql_pconnect()` | Always opens a new persistent connection; does not reuse `$currObj` like `mysql_connect`; may **echo** connect errors from the class layer |
+
+This package **does not** emit PHP deprecations on `mysql_*` calls — it exists so legacy code keeps running on PHP 8+.
 
 ### Query helpers
 
@@ -251,7 +253,7 @@ Expected output: `bool(true) bool(true)`.
 composer test
 ```
 
-Uses Docker (MariaDB on port **3307**), database `mysql2pdo_test`, and removes the container and volume when finished. Default output is **testdox** (one line per test) plus a **deprecations** section at the end.
+Uses Docker (MariaDB on port **3307**), database `mysql2pdo_test`, and removes the container and volume when finished. Default output is **testdox**.
 
 ```bash
 composer test:ci          # compact summary for CI

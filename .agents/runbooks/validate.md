@@ -16,7 +16,7 @@ Integration tests (Docker + ephemeral volume):
 
 ```bash
 composer test
-# Saída testdox + deprecations detalhadas; MySQL em 127.0.0.1:3307
+# testdox; MySQL em 127.0.0.1:3307
 
 composer test:ci
 # Resumo compacto (--no-progress), mesmo ciclo Docker

@@ -31,7 +31,7 @@ Other flags (`MYSQL_CLIENT_COMPRESS`, etc.) are ignored.
 
 ### `mysql_pconnect(...)`
 
-Persistent connection (`p:` host prefix). Emits `E_USER_DEPRECATED`. Does **not** set charset automatically.
+Persistent connection (`p:` host prefix). Does **not** set charset automatically.
 
 Unlike `mysql_connect`, **`mysql_pconnect` does not reuse an existing valid `$currObj`** — it always opens a new persistent connection and assigns `$currObj` (even when connect fails). Honors **`$client_flags`** (SSL env as above). **`$new_link` is ignored.** On connect failure the class may **`echo`** the error message in addition to logging.
 
@@ -135,7 +135,7 @@ Preferred for escaping with an active connection.
 
 ### `mysql_escape_string($escapestr)`
 
-**Deprecated** — emits `E_USER_DEPRECATED` in the func layer.
+Legacy escape **without** an active link (uses `$currObj` when set, otherwise `addslashes()`). Prefer **`mysql_real_escape_string()`** when connected.
 
 ### `mysql_set_charset($charset, $link = null)`
 

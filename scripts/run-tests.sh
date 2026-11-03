@@ -25,16 +25,7 @@ if [[ ! -x vendor/bin/phpunit ]]; then
   composer install --no-interaction
 fi
 
-# Default PHPUnit output (override: composer test -- --no-testdox)
-DEFAULT_PHPUNIT_ARGS=(
-  --testdox
-  --display-deprecations
-  --display-phpunit-deprecations
-)
+DEFAULT_PHPUNIT_ARGS=(--testdox)
 
-if [[ $# -eq 0 ]]; then
-  echo "MySQL: ${MYSQL_TEST_HOST}:${MYSQL_TEST_PORT} / ${MYSQL_TEST_DATABASE}"
-  vendor/bin/phpunit "${DEFAULT_PHPUNIT_ARGS[@]}"
-else
-  vendor/bin/phpunit "$@"
-fi
+echo "MySQL: ${MYSQL_TEST_HOST}:${MYSQL_TEST_PORT} / ${MYSQL_TEST_DATABASE}"
+vendor/bin/phpunit "${DEFAULT_PHPUNIT_ARGS[@]}" "$@"

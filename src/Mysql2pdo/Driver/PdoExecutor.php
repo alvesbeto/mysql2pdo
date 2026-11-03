@@ -96,7 +96,9 @@ final class PdoExecutor
 
     public static function closeLink(ShimLink $link): void
     {
-        $link->pdo = null;
+        if ($link->pdo !== null) {
+            $link->pdo = null;
+        }
         $link->host_info = null;
     }
 
