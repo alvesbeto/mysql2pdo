@@ -2,6 +2,12 @@
 
 All notable changes to **alvesbeto/mysql2pdo** (PDO-backed `mysql_*` shim).
 
+## [1.0.2] - 2026-11-03
+
+### Changed
+
+- Removed references to proprietary consumer products and internal naming patterns from public and agent docs; generic consumer wording only.
+
 ## [1.0.1] - 2026-11-03
 
 ### Changed

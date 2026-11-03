@@ -24,7 +24,7 @@ sources:
 
 # mysql shim method registry
 
-**49** global functions in `src/mysql2pdo.func.php`: all **48** symbols from the [PHP mysql extension reference](https://www.php.net/manual/en/ref.mysql.php), plus **`mysql_multi_query_script`** (Corbee extension). Each delegates to **`mysql2pdo::mysql_*`**, which forwards to **`Mysql2pdo\Shim\{Class}::invoke()`** (e.g. `MysqlQuery` for `mysql_query`). Implementation uses **`Mysql2pdo\Driver\PdoExecutor`** (PDO). Class-only helpers: `Mysql2pdo\ResolveLink`, `Mysql2pdo\LinkContext`, global `mysql2pdo::$currObj`.
+**49** global functions in `src/mysql2pdo.func.php`: all **48** symbols from the [PHP mysql extension reference](https://www.php.net/manual/en/ref.mysql.php), plus **`mysql_multi_query_script`** (package extension, not in php.net mysql reference). Each delegates to **`mysql2pdo::mysql_*`**, which forwards to **`Mysql2pdo\Shim\{Class}::invoke()`** (e.g. `MysqlQuery` for `mysql_query`). Implementation uses **`Mysql2pdo\Driver\PdoExecutor`** (PDO). Class-only helpers: `Mysql2pdo\ResolveLink`, `Mysql2pdo\LinkContext`, global `mysql2pdo::$currObj`.
 
 Human-long signatures: [docs/API.md](../../../docs/API.md). Invariants: [specs/shim-behavior.md](../../specs/shim-behavior.md). **Registry “PDO / behavior” column:** historical label; since **3.0.0** read as **PDO / behavior**.
 

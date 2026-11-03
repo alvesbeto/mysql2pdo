@@ -10,7 +10,7 @@ Map: [../../index.md](../../index.md).
 ## Scope
 
 - Change **only** files the user named or the error implicates (usually `src/mysql2pdo.*`, `src/Mysql2pdo/**`).
-- Do not edit `vendor/`, consumer apps, or Webcred from this repo unless explicitly requested.
+- Do not edit `vendor/` or external consumer codebases from this repo unless explicitly requested.
 
 ## Before coding
 

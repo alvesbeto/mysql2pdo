@@ -26,3 +26,4 @@ scope: "**/*"
 - Out-of-scope drive-by fixes.
 - Ambiguous contract work without SDD approval.
 - Edit `vendor/`.
+- Reference proprietary consumer products, internal repository names, or client-specific paths in committed docs (see [AGENTS.md](../AGENTS.md)).

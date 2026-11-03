@@ -6,13 +6,13 @@ Align mysql2pdo with practical patterns from Leonid-SLV/mysql2pdo and MySQL2PDO:
 
 ## Scope / out of scope
 
-**In:** Driver + shims + tests + docs + registry (3.1.0).
+**In:** Driver + shims + tests + docs + registry (1.0.x).
 
 **Out:** Non-standard `mysql_connect(..., cert path)` 4th argument; SSL integration test without env certs; changing default `localhost` TCP behavior without `MYSQL2PDO_UNIX_SOCKET`.
 
-## Consumer impact (Webcred, semver, ShimLink vs legacy handles)
+## Consumer impact (semver, ShimLink vs legacy handles)
 
-Minor **3.1.0**: `mysql_close` now nulls PDO (apps that ping after close see failure — correct). `$new_link true` opens a second link instead of reusing `$currObj`. `mysql_info` may return non-empty after writes. No signature changes.
+Minor release: `mysql_close` now nulls PDO (apps that ping after close see failure — correct). `$new_link true` opens a second link instead of reusing `$currObj`. `mysql_info` may return non-empty after writes. No signature changes.
 
 ## Success criteria
 

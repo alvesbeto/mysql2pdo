@@ -119,7 +119,7 @@ $link = mysql_connect($host, $user, $pass);
 mysql_query("SET time_zone = '-03:00'"); // uses $link via $currObj
 ```
 
-If your app keeps the link in a variable (for example `$conMy01_0`), pass it explicitly: `mysql_query($sql, $conMy01_0)`.
+If your app keeps the link in a variable (for example `$db_link`), pass it explicitly: `mysql_query($sql, $db_link)`.
 
 Calling `mysql_select_db($database, $link)` with an explicit connection also updates `$currObj`, so the next `mysql_query($sql)` without a link uses that same connection.
 
@@ -268,4 +268,4 @@ MIT — see [LICENSE](LICENSE).
 
 ## Credits
 
-Implementation evolved from the **mysql2i** adapter used in legacy Beto Souza projects. Source comments credit contributors for parts of `mysql_field_flags` / `mysql_field_type` (php.net / Stack Overflow).
+Implementation evolved from earlier **mysql2i**-style adapters used in legacy PHP codebases. Source comments credit contributors for parts of `mysql_field_flags` / `mysql_field_type` (php.net / Stack Overflow).

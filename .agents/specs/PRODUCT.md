@@ -17,7 +17,7 @@ The installer’s application owns connection settings. This package registers `
 | Consumer | Integration |
 |----------|-------------|
 | Legacy PHP apps | `composer require alvesbeto/mysql2pdo` + `vendor/autoload.php` |
-| Webcred (optional) | Path repo; replaces local legacy shim requires |
+| Monorepo / path install | Local path repository; replaces copied shim files in the app |
 
 ## Canonical behavior
 

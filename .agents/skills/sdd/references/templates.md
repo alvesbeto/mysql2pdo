@@ -7,7 +7,7 @@
 
 ## Objective
 ## Scope / out of scope
-## Consumer impact (Webcred, semver, ShimLink vs legacy handles)
+## Consumer impact (semver, ShimLink vs legacy handles)
 ## Success criteria (testable — include `composer test` when DB behavior changes)
 ## Boundaries (always / ask / never — PDO only in src per ADR-0006)
 ## Open questions

@@ -20,7 +20,7 @@ Open [index.md](index.md) and follow **one** row. Default skill: [skills/mysql2p
 
 ### ASK FIRST
 
-- Breaking change to function signatures or semantics consumed by Webcred and other apps.
+- Breaking change to function signatures or semantics consumed by downstream applications.
 - New Composer dependency or PHP version bump.
 - CI, Packagist name, or license change.
 - Removing or renaming public `mysql_*` shims.
@@ -32,5 +32,6 @@ Open [index.md](index.md) and follow **one** row. Default skill: [skills/mysql2p
 - Implement ambiguous contract changes without an approved SDD workspace.
 - Disable or delete tests to force green.
 - Expose secrets in chat or commits.
+- Name specific proprietary consumer products or internal repos in README, `docs/`, or other files published with this package (use generic terms such as "legacy PHP apps" or "downstream consumers").
 - Edit `vendor/`.
 - Start implementation in the same turn as an unapproved PRD ([workflow](skills/sdd/references/workflow.md)).

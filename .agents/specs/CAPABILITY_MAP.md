@@ -15,6 +15,6 @@ Single-module library. No bounded contexts beyond the shim.
 
 **Build order:** `mysql-shim` → refresh `agent-tooling` memory when public API or invariants change.
 
-**Dependency direction:** Consumers depend on this package. This package depends on PHP + ext-pdo only. It must not depend on Webcred or application code.
+**Dependency direction:** Consumers depend on this package. This package depends on PHP + ext-pdo only. It must not depend on any particular application codebase.
 
 Cross-cutting work (Packagist publish, semver major, new public API surface) → open SDD workspace under [../sdd/](../sdd/index.md).

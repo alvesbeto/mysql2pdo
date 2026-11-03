@@ -47,7 +47,7 @@ curl -XPOST -H "Authorization: Bearer $PACKAGIST_TOKEN" \
   'https://packagist.org/api/update-package?username=alvesbeto'
 ```
 
-## Consumer install (Webcred / stable apps)
+## Consumer install (stable apps)
 
 ```bash
 composer require alvesbeto/mysql2pdo:^1.0

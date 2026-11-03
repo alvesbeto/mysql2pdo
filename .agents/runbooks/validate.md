@@ -27,4 +27,4 @@ composer test -- --filter test_mysql_connect
 
 Requires Docker, `pdo_mysql`, and port **3307** free. The script always runs `docker compose down -v` on exit (success or failure).
 
-Before release (maintainer): tag, Packagist, consumer smoke in Webcred if integrated.
+Before release (maintainer): tag, Packagist, smoke test in a consuming app if integrated.

@@ -5,7 +5,7 @@ description: Spec-driven workflow for ambiguous or contract-breaking mysql2pdo c
 
 # SDD
 
-Use when the change is **ambiguous**, **risky**, or **breaks consumers** (Webcred, semver). Routine fixes follow [../mysql2pdo/SKILL.md](../mysql2pdo/SKILL.md).
+Use when the change is **ambiguous**, **risky**, or **breaks downstream consumers** (semver). Routine fixes follow [../mysql2pdo/SKILL.md](../mysql2pdo/SKILL.md).
 
 **Stack context:** public API is global `mysql_*` + facade `mysql2pdo`; implementation is **PDO** in `Mysql2pdo\Driver\PdoExecutor`. Do not reintroduce a second driver or `mysqli_*` in `src/`.
 
