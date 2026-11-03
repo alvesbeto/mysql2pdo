@@ -47,10 +47,10 @@ Human-long signatures: [docs/API.md](../../../docs/API.md). Invariants: [specs/s
 
 | Symbol | Class L | Func L | Backend / notes | Func |
 |--------|---------|--------|-----------------|------|
-| `mysql_connect` | 57 | 58 | Reuses valid `$currObj`; else `PdoExecutor::connect`; **no** implicit charset | — |
+| `mysql_connect` | 57 | 58 | Reuses valid `$currObj` when `$new_link` false; else `PdoExecutor::connect` with `$client_flags` (SSL env); **no** implicit charset | — |
 | `mysql_pconnect` | 498 | 285 | Always new `p:` connect; **no** reuse of valid `$currObj`; always `self::$currObj = $link`; `$new_link`/`$client_flags` unused in class; failure: `error_log` + **echo** in class | dep |
 | `mysql_select_db` | 589 | 332 | `PdoExecutor::selectDb`; if explicit `$link` is connected, sets `$currObj`; empty `$dbname` → false | — |
-| `mysql_close` | 37 | 45 | Does not close socket; `$isClosing` guard; func early `true` if link invalid | guard |
+| `mysql_close` | 37 | 45 | `PdoExecutor::closeLink` (null PDO); `$isClosing` guard; func early `true` if link invalid | guard |
 | `mysql_ping` | 511 | 291 | `SELECT 1` + free result, not `SELECT 1 via PdoExecutor` | — |
 
 ---
@@ -80,7 +80,7 @@ Human-long signatures: [docs/API.md](../../../docs/API.md). Invariants: [specs/s
 | `mysql_num_fields` | 480 | 267 | `PdoExecutor::numFields` | warn |
 | `mysql_data_seek` | 86 | 69 | `PdoExecutor::dataSeek` | warn |
 | `mysql_free_result` | 358 | 199 | Invalid result → `true` (no-op) | guard |
-| `mysql_result` | 568 | 323 | Seek row; optional column name scan; else first column | warn |
+| `mysql_result` | 568 | 323 | Seek row; column name or `table.column`; numeric offset; else first column | warn |
 
 ---
 
@@ -88,11 +88,11 @@ Human-long signatures: [docs/API.md](../../../docs/API.md). Invariants: [specs/s
 
 | Symbol | Class L | Func L | Backend / notes | Func |
 |--------|---------|--------|-----------------|------|
-| `mysql_field_name` | 317 | 175 | `PdoExecutor::fetchFieldDirect_direct` → `name` | — |
-| `mysql_field_type` | 339 | 193 | Maps `MYSQLI_TYPE_*` constants to names | — |
-| `mysql_field_len` | 310 | 169 | `PdoExecutor::fetchFieldDirect_direct` → `length` | — |
-| `mysql_field_flags` | 278 | 163 | Bit decode via `MYSQLI_*_FLAG` constants; lowercase string | — |
-| `mysql_field_table` | 329 | 187 | `PdoExecutor::fetchFieldDirect_direct` → `table` | — |
+| `mysql_field_name` | 317 | 175 | `PdoExecutor::fetchFieldDirect` → `name` | — |
+| `mysql_field_type` | 339 | 193 | Maps column type ids via PDO `getColumnMeta` | — |
+| `mysql_field_len` | 310 | 169 | `PdoExecutor::fetchFieldDirect` → `max_length` | — |
+| `mysql_field_flags` | 278 | 163 | Bit decode from column meta flags; lowercase string | — |
+| `mysql_field_table` | 329 | 187 | `PdoExecutor::fetchFieldDirect` → `table` | — |
 | `mysql_field_seek` | 324 | 181 | `PdoExecutor::fieldSeek` | — |
 
 ---
@@ -105,7 +105,7 @@ Human-long signatures: [docs/API.md](../../../docs/API.md). Invariants: [specs/s
 | `mysql_error` | 193 | 102 | `resolveLink`; no link → `''` | — |
 | `mysql_affected_rows` | 15 | 33 | Requires valid `ShimLink` with `host_info`; else `false` | — |
 | `mysql_insert_id` | 412 | 238 | `PdoExecutor::insertId` | — |
-| `mysql_info` | 403 | 232 | `PdoExecutor::info` | — |
+| `mysql_info` | 403 | 232 | Best-effort write-query strings on `ShimLink::$lastInfoString`; `''` after SELECT | — |
 | `mysql_stat` | 621 | 343 | `PdoExecutor::stat` | — |
 | `mysql_get_client_info` | 369 | 208 | `PdoExecutor::getClientInfo($currObj)` | — |
 | `mysql_get_host_info` | 376 | 214 | `PdoExecutor::getHostInfo` | — |
@@ -143,7 +143,9 @@ Human-long signatures: [docs/API.md](../../../docs/API.md). Invariants: [specs/s
 
 ## Global constants (`mysql2pdo.func.php`)
 
-Defined when shim loads (map to `MYSQLI_*`): `MYSQL_BOTH`, `MYSQL_NUM`, `MYSQL_ASSOC`, `MYSQL_CLIENT_COMPRESS`, `MYSQL_CLIENT_SSL`, `MYSQL_CLIENT_INTERACTIVE`, `MYSQL_CLIENT_IGNORE_SPACE` (L11–L31).
+Defined when shim loads (legacy `MYSQL_*` names, values from shim): `MYSQL_BOTH`, `MYSQL_NUM`, `MYSQL_ASSOC`, `MYSQL_CLIENT_COMPRESS`, `MYSQL_CLIENT_SSL`, `MYSQL_CLIENT_INTERACTIVE`, `MYSQL_CLIENT_IGNORE_SPACE` (L11–L31).
+
+**Migration helpers (not php.net):** `is_resource_custom`, `get_resource_type_custom` (end of `mysql2pdo.func.php`).
 
 ---
 

@@ -14,11 +14,11 @@ final class MysqlConnect
     public static function invoke($host = '', $username = '', $passwd = '', $new_link = false, $client_flags = 0)
     {
         $curr = LinkContext::getCurrObj();
-        if ($curr instanceof ShimLink && $curr->isConnected()) {
+        if ($curr instanceof ShimLink && $curr->isConnected() && !$new_link) {
             return $curr;
         }
 
-        $link = PdoExecutor::connect($host, $username, $passwd);
+        $link = PdoExecutor::connect($host, $username, $passwd, false, (int) $client_flags);
         LinkContext::setCurrObj($link);
         LinkContext::setClosing(false);
 

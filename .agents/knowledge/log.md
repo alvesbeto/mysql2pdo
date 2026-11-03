@@ -1,3 +1,7 @@
+## 2026-11-03: SDD + agent context aligned to PDO
+
+Renamed default skill `mysql2pdo`; SDD workflow/templates reference PDO, `ShimLink`, `composer test`; archived [sdd/pdo-driver-migration/shipped.md](../sdd/pdo-driver-migration/shipped.md).
+
 ## 2026-11-03: Integration tests + Docker MySQL
 
 PHPUnit suite in `tests/Integration/`; `scripts/run-tests.sh` starts `docker-compose.test.yml`, runs tests, always `down -v`.

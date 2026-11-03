@@ -12,7 +12,20 @@ Signatures follow the historical PHP `mysql_*` documentation unless noted otherw
 
 ### `mysql_connect($host = '', $username = '', $passwd = '', $new_link = false, $client_flags = 0)`
 
-Opens a connection via PDO. Reuses `mysql2pdo::$currObj` when a valid connection already exists. Does **not** set charset; use `mysql_set_charset()` or your app’s SQL if needed.
+Opens a connection via PDO. Reuses `mysql2pdo::$currObj` when a valid connection already exists and **`$new_link` is false**. Pass **`$new_link = true`** to open a separate link. Does **not** set charset; use `mysql_set_charset()` or your app’s SQL if needed.
+
+**`$client_flags`:** when **`MYSQL_CLIENT_SSL`** is set, PDO SSL options are read from environment variables:
+
+| Variable | Purpose |
+|----------|---------|
+| `MYSQL2PDO_SSL_CA` | CA file path |
+| `MYSQL2PDO_SSL_CERT` | Client certificate |
+| `MYSQL2PDO_SSL_KEY` | Client private key |
+| `MYSQL2PDO_SSL_VERIFY` | `0` or `1` for server cert verification |
+
+Other flags (`MYSQL_CLIENT_COMPRESS`, etc.) are ignored.
+
+**Host / socket:** plain `localhost` uses TCP **`127.0.0.1`** unless **`MYSQL2PDO_UNIX_SOCKET`** is set. You can also use `host:/path/to.sock` or `host:3306` in the `$host` string.
 
 **Returns:** `\Mysql2pdo\Driver\ShimLink|false`
 
@@ -20,7 +33,7 @@ Opens a connection via PDO. Reuses `mysql2pdo::$currObj` when a valid connection
 
 Persistent connection (`p:` host prefix). Emits `E_USER_DEPRECATED`. Does **not** set charset automatically.
 
-Unlike `mysql_connect`, **`mysql_pconnect` does not reuse an existing valid `$currObj`** — it always opens a new persistent connection and assigns `$currObj` (even when connect fails). The class implementation ignores `$new_link` and `$client_flags`. On connect failure the class may **`echo`** the error message in addition to logging.
+Unlike `mysql_connect`, **`mysql_pconnect` does not reuse an existing valid `$currObj`** — it always opens a new persistent connection and assigns `$currObj` (even when connect fails). Honors **`$client_flags`** (SSL env as above). **`$new_link` is ignored.** On connect failure the class may **`echo`** the error message in addition to logging.
 
 ### `mysql_select_db($dbname, $link = null)`
 
@@ -28,7 +41,7 @@ Selects a database with `USE` via PDO. When `$link` is a connected `ShimLink`, u
 
 ### `mysql_close($link = null)`
 
-Compatibility: **does not aggressively close** the connection; returns `true` in most cases.
+Clears the current link when appropriate and **releases the PDO handle** on the `ShimLink` (`pdo` and `host_info` become null). Returns **`true`** even when the link was already invalid (shutdown-handler friendly). After close, `mysql_ping` returns false.
 
 ### `mysql_ping($link = null)`
 
@@ -104,7 +117,7 @@ Selects `$database` and runs `$query`.
 | `mysql_error($link = null)` | string; `''` without a link |
 | `mysql_affected_rows($link = null)` | |
 | `mysql_insert_id($link = null)` | |
-| `mysql_info($link = null)` | |
+| `mysql_info($link = null)` | Best-effort `Records:` / `Rows matched:` after write queries; `''` after SELECT |
 | `mysql_stat($link = null)` | |
 | `mysql_get_client_info()` | |
 | `mysql_get_host_info($link = null)` | |
@@ -175,6 +188,18 @@ $res = mysql2pdo::mysql_query('SELECT 1', $link);
 2. `src/mysql2pdo.func.php`
 
 With Composer, only `vendor/autoload.php` is required.
+
+---
+
+## Migration helpers (not in php.net)
+
+### `is_resource_custom($var): bool`
+
+Returns true for a connected `ShimLink` or a non-freed `ShimResult` (replacement for `is_resource()` on legacy mysql handles).
+
+### `get_resource_type_custom($var): string`
+
+Returns `'mysql link'`, `'mysql result'`, or `'unknown'`.
 
 ---
 

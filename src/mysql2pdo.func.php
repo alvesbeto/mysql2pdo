@@ -366,4 +366,22 @@ if (!function_exists('mysql_affected_rows')) {
 
         return mysql2pdo::mysql_unbuffered_query($query, $link);
     }
+
+    function is_resource_custom($var): bool
+    {
+        return \Mysql2pdo\Driver\PdoExecutor::isLink($var)
+            || \Mysql2pdo\Driver\PdoExecutor::isResult($var);
+    }
+
+    function get_resource_type_custom($var): string
+    {
+        if (\Mysql2pdo\Driver\PdoExecutor::isLink($var)) {
+            return 'mysql link';
+        }
+        if (\Mysql2pdo\Driver\PdoExecutor::isResult($var)) {
+            return 'mysql result';
+        }
+
+        return 'unknown';
+    }
 }

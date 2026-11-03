@@ -17,7 +17,7 @@ Agent rules and specs must not sprawl across IDE-specific trees with duplicated 
 - Rules, specs, ADRs, runbooks, skills, SDD workspaces, and OKF knowledge live under `.agents/`.
 - `.cursor` and `.claude` symlink to `.agents/`.
 - Root `AGENTS.md` symlinks to `.agents/AGENTS.md`.
-- Default procedure: `.agents/skills/mysql2i/SKILL.md`.
+- Default procedure: `.agents/skills/mysql2pdo/SKILL.md`.
 
 ## Consequences
 

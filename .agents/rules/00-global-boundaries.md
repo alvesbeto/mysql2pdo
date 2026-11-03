@@ -1,6 +1,6 @@
 ---
 title: "Global agent boundaries"
-description: "ROUTING: Read at the start of a broad task. Skip when mysql2i skill already names the scope."
+description: "ROUTING: Read at the start of a broad task. Skip when mysql2pdo skill already names the scope."
 tags: [boundaries, global]
 scope: "**/*"
 ---

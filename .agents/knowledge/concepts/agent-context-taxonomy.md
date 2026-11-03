@@ -22,7 +22,7 @@ Use when you need a **single** overview. Do not load every folder.
 
 1. [AGENTS.md](../../AGENTS.md) — boundaries.
 2. [index.md](../../index.md) — **one row**.
-3. [skills/mysql2i/SKILL.md](../../skills/mysql2i/SKILL.md) — routine edits.
+3. [skills/mysql2pdo/SKILL.md](../../skills/mysql2pdo/SKILL.md) — routine edits.
 4. [skills/sdd/SKILL.md](../../skills/sdd/SKILL.md) — ambiguous or breaking work.
 5. [knowledge/concepts/mysql-shim-method-registry.md](../concepts/mysql-shim-method-registry.md) — per-method shim detail.
 

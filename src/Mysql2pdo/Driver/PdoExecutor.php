@@ -28,6 +28,11 @@ final class PdoExecutor
 
     public static function isLink(mixed $link): bool
     {
+        return $link instanceof ShimLink && $link->isConnected();
+    }
+
+    public static function isLinkInstance(mixed $link): bool
+    {
         return $link instanceof ShimLink;
     }
 
@@ -39,8 +44,13 @@ final class PdoExecutor
     /**
      * @return ShimLink|false
      */
-    public static function connect(string $host, string $username, string $passwd, bool $persistent = false): ShimLink|false
-    {
+    public static function connect(
+        string $host,
+        string $username,
+        string $passwd,
+        bool $persistent = false,
+        int $client_flags = 0,
+    ): ShimLink|false {
         $hostForDsn = $host;
         if (str_starts_with($hostForDsn, 'p:')) {
             $hostForDsn = substr($hostForDsn, 2);
@@ -57,6 +67,7 @@ final class PdoExecutor
         if ($persistent) {
             $options[PDO::ATTR_PERSISTENT] = true;
         }
+        self::applyClientFlags($options, $client_flags);
 
         try {
             $dsn = self::buildDsn($hostForDsn);
@@ -81,6 +92,12 @@ final class PdoExecutor
         self::syncError($link);
 
         return $link;
+    }
+
+    public static function closeLink(ShimLink $link): void
+    {
+        $link->pdo = null;
+        $link->host_info = null;
     }
 
     public static function connectError(): string
@@ -129,8 +146,12 @@ final class PdoExecutor
         $link->lastAffectedRows = $stmt->rowCount();
 
         if ($stmt->columnCount() === 0) {
+            $link->lastInfoString = self::buildInfoString($query, $link->lastAffectedRows);
+
             return true;
         }
+
+        $link->lastInfoString = '';
 
         return self::resultFromStatement($stmt, $buffered);
     }
@@ -260,7 +281,11 @@ final class PdoExecutor
 
     public static function info(ShimLink $link): string
     {
-        return '';
+        if (!$link->pdo) {
+            return '';
+        }
+
+        return $link->lastInfoString;
     }
 
     public static function stat(ShimLink $link): string|false
@@ -528,6 +553,7 @@ final class PdoExecutor
     {
         $port = null;
         $socket = null;
+        $hostHadColonExtra = false;
         if (str_contains($host, ':')) {
             [$hostPart, $extra] = explode(':', $host, 2);
             if ($extra !== '' && ctype_digit($extra)) {
@@ -536,10 +562,18 @@ final class PdoExecutor
             } elseif ($extra !== '') {
                 $host = $hostPart;
                 $socket = $extra;
+                $hostHadColonExtra = true;
             }
         }
 
-        if ($host === 'localhost') {
+        if ($host === 'localhost' && $socket === null && !$hostHadColonExtra && $port === null) {
+            $envSocket = getenv('MYSQL2PDO_UNIX_SOCKET');
+            if ($envSocket !== false && $envSocket !== '') {
+                $socket = $envSocket;
+            } else {
+                $host = '127.0.0.1';
+            }
+        } elseif ($host === 'localhost' && $socket === null) {
             $host = '127.0.0.1';
         }
 
@@ -552,6 +586,56 @@ final class PdoExecutor
         }
 
         return $dsn;
+    }
+
+    /**
+     * @param array<int, mixed> $options
+     */
+    private static function applyClientFlags(array &$options, int $client_flags): void
+    {
+        $sslFlag = defined('MYSQL_CLIENT_SSL') ? MYSQL_CLIENT_SSL : 2048;
+        if (($client_flags & $sslFlag) === 0) {
+            return;
+        }
+
+        $ca = getenv('MYSQL2PDO_SSL_CA');
+        if ($ca !== false && $ca !== '') {
+            $options[PdoMysqlAttributes::sslCa()] = $ca;
+        }
+        $cert = getenv('MYSQL2PDO_SSL_CERT');
+        if ($cert !== false && $cert !== '') {
+            $options[PdoMysqlAttributes::sslCert()] = $cert;
+        }
+        $key = getenv('MYSQL2PDO_SSL_KEY');
+        if ($key !== false && $key !== '') {
+            $options[PdoMysqlAttributes::sslKey()] = $key;
+        }
+        $verify = getenv('MYSQL2PDO_SSL_VERIFY');
+        if ($verify !== false && $verify !== '') {
+            $options[PdoMysqlAttributes::sslVerifyServerCert()] = (int) $verify;
+        }
+    }
+
+    private static function buildInfoString(string $query, int $rowCount): string
+    {
+        $normalized = ltrim($query);
+        if ($normalized === '') {
+            return '';
+        }
+        $upper = strtoupper($normalized);
+        if (str_starts_with($upper, 'INSERT') || str_starts_with($upper, 'REPLACE')) {
+            return sprintf('Records: %d Duplicates: 0 Warnings: 0', max(0, $rowCount));
+        }
+        if (str_starts_with($upper, 'UPDATE')) {
+            $n = max(0, $rowCount);
+
+            return sprintf('Rows matched: %d Changed: %d Warnings: 0', $n, $n);
+        }
+        if (str_starts_with($upper, 'DELETE')) {
+            return sprintf('Records: %d', max(0, $rowCount));
+        }
+
+        return '';
     }
 
     private static function formatHostInfo(string $host): string

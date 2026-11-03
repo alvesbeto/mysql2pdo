@@ -11,7 +11,7 @@ use Mysql2pdo\Tests\Support\TestDatabase;
 use stdClass;
 
 /**
- * One integration test per global mysql_* function (49) plus resolveLink helper.
+ * One integration test per global mysql_* function (49) plus resolveLink and migration helpers.
  */
 final class MysqlFunctionsTest extends IntegrationTestCase
 {
@@ -24,6 +24,15 @@ final class MysqlFunctionsTest extends IntegrationTestCase
             TestDatabase::password()
         );
         $this->assertSame($this->link, $again);
+
+        $second = mysql_connect(
+            TestDatabase::hostWithPort(),
+            TestDatabase::user(),
+            TestDatabase::password(),
+            true
+        );
+        $this->assertInstanceOf(ShimLink::class, $second);
+        $this->assertNotSame($this->link, $second);
     }
 
     public function test_mysql_pconnect(): void
@@ -46,7 +55,16 @@ final class MysqlFunctionsTest extends IntegrationTestCase
 
     public function test_mysql_close(): void
     {
-        $this->assertTrue(mysql_close($this->link));
+        $extra = mysql_connect(
+            TestDatabase::hostWithPort(),
+            TestDatabase::user(),
+            TestDatabase::password(),
+            true
+        );
+        $this->assertInstanceOf(ShimLink::class, $extra);
+        $this->assertTrue(mysql_close($extra));
+        $this->assertNull($extra->pdo);
+        $this->assertFalse(mysql_ping($extra));
     }
 
     public function test_mysql_ping(): void
@@ -188,6 +206,14 @@ final class MysqlFunctionsTest extends IntegrationTestCase
         $this->assertSame('alpha', mysql_result($result, 0, 'label'));
         $this->assertSame('beta', mysql_result($result, 1, 'label'));
         mysql_free_result($result);
+
+        $joined = mysql_query(
+            'SELECT mysql2pdo_fn.id, mysql2pdo_fn.label FROM mysql2pdo_fn ORDER BY id',
+            $this->link
+        );
+        $this->assertInstanceOf(ShimResult::class, $joined);
+        $this->assertSame('alpha', mysql_result($joined, 0, 'mysql2pdo_fn.label'));
+        mysql_free_result($joined);
     }
 
     public function test_mysql_field_name(): void
@@ -265,7 +291,11 @@ final class MysqlFunctionsTest extends IntegrationTestCase
 
     public function test_mysql_info(): void
     {
+        mysql_query('SELECT 1', $this->link);
         $this->assertSame('', mysql_info($this->link));
+        mysql_query("INSERT INTO mysql2pdo_fn (label, amount) VALUES ('info_row', 1)", $this->link);
+        $info = mysql_info($this->link);
+        $this->assertStringContainsString('Records:', $info);
     }
 
     public function test_mysql_stat(): void
@@ -411,5 +441,17 @@ final class MysqlFunctionsTest extends IntegrationTestCase
     {
         $this->assertSame($this->link, \mysql2pdo::resolveLink($this->link));
         $this->assertSame($this->link, \mysql2pdo::resolveLink(null));
+    }
+
+    public function test_is_resource_custom_helpers(): void
+    {
+        $result = $this->fixtureSelectResult();
+        $this->assertTrue(is_resource_custom($this->link));
+        $this->assertSame('mysql link', get_resource_type_custom($this->link));
+        $this->assertTrue(is_resource_custom($result));
+        $this->assertSame('mysql result', get_resource_type_custom($result));
+        mysql_free_result($result);
+        $this->assertFalse(is_resource_custom($result));
+        $this->assertSame('unknown', get_resource_type_custom($result));
     }
 }

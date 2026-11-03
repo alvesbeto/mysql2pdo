@@ -6,10 +6,12 @@
 | Notable delivery | [../../knowledge/log.md](../../knowledge/log.md) | Secrets, full diffs |
 | Current behavior / invariants | [../../specs/shim-behavior.md](../../specs/shim-behavior.md) | PRD drafts |
 | Per-method lines and guards | [../../knowledge/concepts/mysql-shim-method-registry.md](../../knowledge/concepts/mysql-shim-method-registry.md) | Duplicating full API in specs |
-| Stack / layout | [../../specs/TECH.md](../../specs/TECH.md) | — |
+| Stack / layout / tests | [../../specs/TECH.md](../../specs/TECH.md) | — |
 | Repeatable decision | [../../adrs/](../../adrs/index.md) | Trial-and-error narrative |
 | Non-obvious cross-link | [../../knowledge/concepts/](../../knowledge/index.md) | API duplicates |
 | In-flight feature | [../../sdd/](../../sdd/index.md) | Leave in SDD after ship |
+
+**Verify before done:** [../../runbooks/validate.md](../../runbooks/validate.md) and, for shim/DB behavior, `composer test` (Docker MySQL, ephemeral volume).
 
 Log entry format: `## YYYY-MM-DD: summary` at top of `log.md`.
 

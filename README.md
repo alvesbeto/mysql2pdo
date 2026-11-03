@@ -128,7 +128,11 @@ If your app keeps the link in a variable (for example `$conMy01_0`), pass it exp
 
 Calling `mysql_select_db($database, $link)` with an explicit connection also updates `$currObj`, so the next `mysql_query($sql)` without a link uses that same connection.
 
-**`mysql_connect` vs `mysql_pconnect`:** `mysql_connect` reuses a valid `$currObj` instead of opening again. `mysql_pconnect` always opens a new `p:` connection and always sets `$currObj` (see [docs/API.md](docs/API.md)).
+**`mysql_connect` vs `mysql_pconnect`:** `mysql_connect` reuses a valid `$currObj` when `$new_link` is false; pass `$new_link = true` for a second connection. `mysql_pconnect` always opens a new `p:` connection and always sets `$currObj` (see [docs/API.md](docs/API.md)).
+
+**SSL / socket:** set `$client_flags` to `MYSQL_CLIENT_SSL` and provide `MYSQL2PDO_SSL_*` env vars, or set `MYSQL2PDO_UNIX_SOCKET` for plain `localhost`. See [docs/API.md](docs/API.md).
+
+**Legacy `is_resource($link)`:** use `$link instanceof \Mysql2pdo\Driver\ShimLink` or the helpers **`is_resource_custom()`** / **`get_resource_type_custom()`** (MySQL2PDO-style migration).
 
 **`mysql_query` warnings:** the global function emits an extra PHP warning when there is no connection; `mysql2pdo::mysql_query()` logs only. **`mysql_unbuffered_query`** does not perform those connection checks—use it only when the link is known good.
 

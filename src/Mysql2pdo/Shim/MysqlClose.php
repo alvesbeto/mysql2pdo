@@ -25,6 +25,8 @@ final class MysqlClose
 
         LinkContext::setCurrObj(null);
 
+        PdoExecutor::closeLink($link);
+
         return true;
     }
 }

@@ -21,6 +21,8 @@ final class ShimLink
 
     public int $lastAffectedRows = 0;
 
+    public string $lastInfoString = '';
+
     public ?PDO $pdo = null;
 
     public function __construct(

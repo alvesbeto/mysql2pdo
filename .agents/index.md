@@ -9,7 +9,7 @@ Read this page only. Open **one** row for the task. Human docs: [README.md](../R
 | Need | Open |
 |------|------|
 | Entry and limits | [AGENTS.md](AGENTS.md) |
-| Routine code change | [skill mysql2i](skills/mysql2i/SKILL.md) |
+| Routine code change | [skill mysql2pdo](skills/mysql2pdo/SKILL.md) |
 | Ambiguous or breaking shim change | [skill sdd](skills/sdd/SKILL.md) |
 | Global boundaries | [rules/00-global-boundaries.md](rules/00-global-boundaries.md) |
 | PHP / package rules | [rules/index.md](rules/index.md) |

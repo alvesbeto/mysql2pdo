@@ -7,9 +7,9 @@
 
 ## Objective
 ## Scope / out of scope
-## Consumer impact (Webcred, semver)
-## Success criteria (testable)
-## Boundaries (always / ask / never)
+## Consumer impact (Webcred, semver, ShimLink vs legacy handles)
+## Success criteria (testable — include `composer test` when DB behavior changes)
+## Boundaries (always / ask / never — PDO only in src per ADR-0006)
 ## Open questions
 ```
 
@@ -18,10 +18,10 @@
 ```markdown
 # TechSpec: <title>
 
-## Components and files
+## Components and files (Driver / Shim / facade / tests)
 ## Implementation order
 ## Contracts (signatures, semantics)
-## Reuse search (what exists, decision)
+## Reuse search (PdoExecutor, existing shims)
 ## Risks
 ## Out of scope
 ```
@@ -31,7 +31,7 @@
 ```markdown
 - [ ] Task …
   - Acceptance: …
-  - Verify: …
+  - Verify: composer test / composer validate --strict / …
   - Files: …
 ```
 

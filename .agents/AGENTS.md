@@ -1,6 +1,6 @@
 # mysql2pdo — agent instructions
 
-Open [index.md](index.md) and follow **one** row. Default skill: [skills/mysql2i/SKILL.md](skills/mysql2i/SKILL.md). Ambiguous or contract-breaking work: [skills/sdd/SKILL.md](skills/sdd/SKILL.md).
+Open [index.md](index.md) and follow **one** row. Default skill: [skills/mysql2pdo/SKILL.md](skills/mysql2pdo/SKILL.md). Ambiguous or contract-breaking work: [skills/sdd/SKILL.md](skills/sdd/SKILL.md).
 
 `.cursor` and `.claude` symlink to `.agents`. Edit `.agents/` only.
 

@@ -12,7 +12,7 @@ final class MysqlPconnect
 {
     public static function invoke($host = '', $username = '', $passwd = '', $new_link = false, $client_flags = 0)
     {
-        $link = PdoExecutor::connect('p:' . $host, $username, $passwd, true);
+        $link = PdoExecutor::connect('p:' . $host, $username, $passwd, true, (int) $client_flags);
         if (!$link) {
             $errorMsg = PdoExecutor::connectError();
             error_log('MySQL Persistent Connection Error: ' . $errorMsg);

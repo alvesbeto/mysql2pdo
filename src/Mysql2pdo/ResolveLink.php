@@ -32,6 +32,6 @@ final class ResolveLink
      */
     public static function isValidLink($link): bool
     {
-        return PdoExecutor::isLink($link) && $link->isConnected();
+        return PdoExecutor::isLink($link);
     }
 }
