@@ -33,12 +33,13 @@ git push origin v1.0.0 --force
 
 Package: [packagist.org/packages/alvesbeto/mysql2pdo](https://packagist.org/packages/alvesbeto/mysql2pdo)
 
-After push or new tag, Packagist should show **`1.0.0`** (stable) and **`dev-main`**. If only `dev-main` appears:
+After push or new tag, Packagist should show **`1.0.0`**, **`1.0.1`**, and **`dev-main`**. If only stale `dev-main` appears:
 
-1. Log in on Packagist → package page → **Update** (manual sync).
-2. Confirm **GitHub hook** on the repo: webhook URL  
-   `https://packagist.org/api/github?username=alvesbeto`  
-   events: **push** (and tag create if available). Secret from Packagist profile → API / GitHub integration.
+1. Log in on Packagist → [alvesbeto/mysql2pdo](https://packagist.org/packages/alvesbeto/mysql2pdo) → **Update** (manual sync — works without API token).
+2. Confirm **GitHub hook** on the repo (`Settings → Webhooks`):
+   - URL: `https://packagist.org/api/github?username=alvesbeto`
+   - Content type: `application/json`
+   - Secret: must match **Packagist profile → GitHub Secret** (not the API token). Deliveries returning **403** mean the secret is wrong — paste the Packagist secret into the GitHub webhook and save, then **Redeliver** a recent push event.
 3. Optional API refresh (Packagist profile → **Show API Token**):
 
 ```bash
