@@ -1,0 +1,22 @@
+# Ephemeral MySQL for integration tests. Teardown: scripts/run-tests.sh (always runs `down -v`).
+name: mysql2pdo-test
+
+services:
+  mysql:
+    image: mariadb:11.4
+    environment:
+      MARIADB_ROOT_PASSWORD: test
+      MARIADB_DATABASE: mysql2pdo_test
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql2pdo_test_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 2s
+      timeout: 5s
+      retries: 30
+      start_period: 15s
+
+volumes:
+  mysql2pdo_test_data:

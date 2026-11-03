@@ -1,10 +1,18 @@
-## 2026-11-03: Namespace `Mysql2i\` (no vendor prefix)
+## 2026-11-03: Integration tests + Docker MySQL
 
-PSR-4 path `src/Mysql2i/`; dropped `Alvesbeto\` segment from namespace (2.0.0 docs).
+PHPUnit suite in `tests/Integration/`; `scripts/run-tests.sh` starts `docker-compose.test.yml`, runs tests, always `down -v`.
+
+## 2026-11-03: PDO driver (3.0.0)
+
+Replaced legacy driver with PDO (`Mysql2pdo\Driver\*`). Package `alvesbeto/mysql2pdo`; namespace/facade **`Mysql2pdo` / `mysql2pdo`**; link helper **`ResolveLink`**. Breaking for class **`mysql2i`** or non-shim link checks.
+
+## 2026-11-03: Namespace `Mysql2pdo\` (no vendor prefix)
+
+PSR-4 path `src/Mysql2pdo/`; dropped `Alvesbeto\` segment from namespace (2.0.0 docs).
 
 ## 2026-11-03: Split shim into namespaced classes (2.0.0)
 
-One `Mysql2i\Shim\*` class per `mysql_*`; `LinkContext` + `ResolveMysqliLink`; global `mysql2i` facade unchanged. PSR-4 autoload; TECH, API, README, CHANGELOG updated.
+One `Mysql2i\Shim\*` class per `mysql_*`; `LinkContext` + `ResolveLink`; global `mysql2i` facade unchanged. PSR-4 autoload; TECH, API, README, CHANGELOG updated.
 
 ## 2026-11-03: php.net parity audit (docs)
 
@@ -16,7 +24,7 @@ Dropped from `src/` (not historical `mysql_*`). Global count remains **48** php.
 
 ## 2026-11-03: Remove `mysql_is_valid_link`
 
-Dropped from `src/` (not historical `mysql_*`). Specs, registry, README, API, CHANGELOG 1.0.4 updated. Link checks: consumer bootstrap / `$link instanceof mysqli`.
+Dropped from `src/` (not historical `mysql_*`). Specs, registry, README, API, CHANGELOG 1.0.4 updated. Link checks: consumer bootstrap / `$link instanceof \Mysql2pdo\Driver\ShimLink`.
 
 ## 2026-11-03: Remove Graphify from repo
 

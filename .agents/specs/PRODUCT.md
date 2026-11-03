@@ -6,18 +6,18 @@ tags: [product, behavior]
 
 # Product — current behavior
 
-Composer package **alvesbeto/mysql2i**: legacy **`mysql_*`** API for PHP 8+ — **mysqli delegation only**, no connection policy (charset, time zone, SQL modes) imposed by the library.
+Composer package **alvesbeto/mysql2pdo**: legacy **`mysql_*`** API for PHP 8+ — **PDO delegation only**, no connection policy (charset, time zone, SQL modes) imposed by the library.
 
 ## Product principle
 
-The installer’s application owns connection settings. This package registers `mysql_*` globals and maps them to `mysqli_*`; it does not call `set_charset`, `SET NAMES`, or similar unless the app does via the same public APIs (`mysql_set_charset`, `mysql_query`, etc.).
+The installer’s application owns connection settings. This package registers `mysql_*` globals and maps them to PDO via `PdoExecutor`; it does not call `set_charset`, `SET NAMES`, or similar unless the app does via the same public APIs (`mysql_set_charset`, `mysql_query`, etc.).
 
 ## Consumers
 
 | Consumer | Integration |
 |----------|-------------|
-| Legacy PHP apps | `composer require alvesbeto/mysql2i` + `vendor/autoload.php` |
-| Webcred (optional) | Path repo; replaces local `classes/config/mysql2i.*` requires |
+| Legacy PHP apps | `composer require alvesbeto/mysql2pdo` + `vendor/autoload.php` |
+| Webcred (optional) | Path repo; replaces local legacy shim requires |
 
 ## Canonical behavior
 

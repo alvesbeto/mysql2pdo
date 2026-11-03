@@ -16,7 +16,7 @@ Git holds the full diff. `.agents/` holds what you cannot get from one targeted 
 | Line changed | Git (maintainer) |
 | Notable delivery | [log.md](../log.md) |
 | Shim invariants | [specs/shim-behavior.md](../../specs/shim-behavior.md) |
-| Per-method catalog (lines, mysqli, func guards) | [mysql-shim-method-registry.md](mysql-shim-method-registry.md) |
+| Per-method catalog (lines, PDO, func guards) | [mysql-shim-method-registry.md](mysql-shim-method-registry.md) |
 | Stack / layout | [specs/TECH.md](../../specs/TECH.md) |
 | Repeatable decision | [adrs/](../../adrs/index.md) |
 | Non-obvious cross-link | Other [concepts/](.) |

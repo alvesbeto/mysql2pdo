@@ -10,11 +10,11 @@ Single-module library. No bounded contexts beyond the shim.
 
 | Module id | Responsibility | Depends on |
 |-----------|----------------|------------|
-| `mysql-shim` | `mysql_*` compatibility over mysqli | — |
+| `mysql-shim` | `mysql_*` compatibility over PDO | — |
 | `agent-tooling` | OKF bundle, SDD workspaces, method registry in knowledge | reads `mysql-shim` via `src/` |
 
 **Build order:** `mysql-shim` → refresh `agent-tooling` memory when public API or invariants change.
 
-**Dependency direction:** Consumers depend on this package. This package depends on PHP + ext-mysqli only. It must not depend on Webcred or application code.
+**Dependency direction:** Consumers depend on this package. This package depends on PHP + ext-pdo only. It must not depend on Webcred or application code.
 
 Cross-cutting work (Packagist publish, semver major, new public API surface) → open SDD workspace under [../sdd/](../sdd/index.md).

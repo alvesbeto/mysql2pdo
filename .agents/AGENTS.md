@@ -1,10 +1,10 @@
-# mysql2i — agent instructions
+# mysql2pdo — agent instructions
 
 Open [index.md](index.md) and follow **one** row. Default skill: [skills/mysql2i/SKILL.md](skills/mysql2i/SKILL.md). Ambiguous or contract-breaking work: [skills/sdd/SKILL.md](skills/sdd/SKILL.md).
 
 `.cursor` and `.claude` symlink to `.agents`. Edit `.agents/` only.
 
-**alvesbeto/mysql2i** — Composer library. Restores global `mysql_*` on PHP 8+ via `ext-mysqli`. Source: `src/mysql2i.class.php`, `src/mysql2i.func.php`.
+**alvesbeto/mysql2pdo** — Composer library. Restores global `mysql_*` on PHP 8+ via **PDO**. Source: `src/mysql2pdo.class.php`, `src/mysql2pdo.func.php`, `src/Mysql2pdo/`.
 
 ## Three-tier boundaries
 

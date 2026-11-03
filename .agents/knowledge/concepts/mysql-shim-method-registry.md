@@ -1,7 +1,7 @@
 ---
 type: Document
 title: mysql shim method registry
-description: Agent-facing catalog of every mysql_* shim and class helpers; line anchors in src/mysql2i.class.php and src/mysql2i.func.php.
+description: Agent-facing catalog of every mysql_* shim and class helpers; line anchors in src/mysql2pdo.class.php and src/mysql2pdo.func.php.
 generated:
   at: 2026-11-03T18:15:00-03:00
   by: process:agent
@@ -24,9 +24,9 @@ sources:
 
 # mysql shim method registry
 
-**49** global functions in `src/mysql2i.func.php`: all **48** symbols from the [PHP mysql extension reference](https://www.php.net/manual/en/ref.mysql.php), plus **`mysql_multi_query_script`** (Corbee extension). Each delegates to **`mysql2i::mysql_*`**, which forwards to **`Mysql2i\Shim\{Class}::invoke()`** (e.g. `MysqlQuery` for `mysql_query`). Class-only helpers: `Mysql2i\ResolveMysqliLink`, `Mysql2i\LinkContext`, global `mysql2i::$currObj`.
+**49** global functions in `src/mysql2pdo.func.php`: all **48** symbols from the [PHP mysql extension reference](https://www.php.net/manual/en/ref.mysql.php), plus **`mysql_multi_query_script`** (Corbee extension). Each delegates to **`mysql2pdo::mysql_*`**, which forwards to **`Mysql2pdo\Shim\{Class}::invoke()`** (e.g. `MysqlQuery` for `mysql_query`). Implementation uses **`Mysql2pdo\Driver\PdoExecutor`** (PDO). Class-only helpers: `Mysql2pdo\ResolveLink`, `Mysql2pdo\LinkContext`, global `mysql2pdo::$currObj`.
 
-Human-long signatures: [docs/API.md](../../../docs/API.md). Invariants: [specs/shim-behavior.md](../../specs/shim-behavior.md).
+Human-long signatures: [docs/API.md](../../../docs/API.md). Invariants: [specs/shim-behavior.md](../../specs/shim-behavior.md). **Registry “PDO / behavior” column:** historical label; since **3.0.0** read as **PDO / behavior**.
 
 **Legend — Func column:** `—` = thin delegate; `warn` = extra `trigger_error`; `dep` = `E_USER_DEPRECATED`; `guard` = pre-check before class.
 
@@ -34,12 +34,12 @@ Human-long signatures: [docs/API.md](../../../docs/API.md). Invariants: [specs/s
 
 ## Class helpers (no global function)
 
-| Symbol | Location | mysqli / behavior |
+| Symbol | Location | PDO / behavior |
 |--------|----------|-------------------|
-| `mysql2i::$currObj` | global facade | Implicit link; backed by `LinkContext` |
-| `LinkContext::$isClosing` (via API) | `Mysql2i\LinkContext` | Set during `mysql_close`; affects `mysql_real_escape_string` fallback |
-| `ResolveMysqliLink::invoke($link)` | `Mysql2i\ResolveMysqliLink` | Returns `$link` if `mysqli`, else current link, else `null`; used by `mysql_errno` / `mysql_error` |
-| `mysql2i::resolveMysqliLink($link)` | facade → `ResolveMysqliLink` | Same as above |
+| `mysql2pdo::$currObj` | global facade | Implicit link; backed by `LinkContext` |
+| `LinkContext::$isClosing` (via API) | `Mysql2pdo\LinkContext` | Set during `mysql_close`; affects `mysql_real_escape_string` fallback |
+| `ResolveLink::invoke($link)` | `Mysql2pdo\ResolveLink` | Returns `$link` if `ShimLink`, else current link, else `null`; used by `mysql_errno` / `mysql_error` |
+| `mysql2pdo::resolveLink($link)` | facade → `ResolveLink` | Same as above |
 
 ---
 
@@ -47,11 +47,11 @@ Human-long signatures: [docs/API.md](../../../docs/API.md). Invariants: [specs/s
 
 | Symbol | Class L | Func L | Backend / notes | Func |
 |--------|---------|--------|-----------------|------|
-| `mysql_connect` | 57 | 58 | Reuses valid `$currObj`; else `mysqli_connect`; **no** implicit charset | — |
+| `mysql_connect` | 57 | 58 | Reuses valid `$currObj`; else `PdoExecutor::connect`; **no** implicit charset | — |
 | `mysql_pconnect` | 498 | 285 | Always new `p:` connect; **no** reuse of valid `$currObj`; always `self::$currObj = $link`; `$new_link`/`$client_flags` unused in class; failure: `error_log` + **echo** in class | dep |
-| `mysql_select_db` | 589 | 332 | `mysqli_select_db`; if explicit `$link` is connected, sets `$currObj`; empty `$dbname` → false | — |
+| `mysql_select_db` | 589 | 332 | `PdoExecutor::selectDb`; if explicit `$link` is connected, sets `$currObj`; empty `$dbname` → false | — |
 | `mysql_close` | 37 | 45 | Does not close socket; `$isClosing` guard; func early `true` if link invalid | guard |
-| `mysql_ping` | 511 | 291 | `SELECT 1` + free result, not `mysqli_ping` | — |
+| `mysql_ping` | 511 | 291 | `SELECT 1` + free result, not `SELECT 1 via PdoExecutor` | — |
 
 ---
 
@@ -59,10 +59,10 @@ Human-long signatures: [docs/API.md](../../../docs/API.md). Invariants: [specs/s
 
 | Symbol | Class L | Func L | Backend / notes | Func |
 |--------|---------|--------|-----------------|------|
-| `mysql_query` | 534 | 297 | `mysqli_query`; func validates then calls class with resolved `$link`; class requires `host_info`; func adds **`trigger_error`** on bad link, class does not | warn |
-| `mysql_unbuffered_query` | 652 | 361 | `mysqli_query(..., MYSQLI_USE_RESULT)`; `empty($link)` → `$currObj`; **no** empty-query or connect guards (unlike `mysql_query`) | — |
-| `mysql_db_query` | 108 | 84 | `mysqli_select_db` then `mysqli_query` | — |
-| `mysql_multi_query_script` | 160 | 108 | **Extension:** `mysqli_multi_query`, drain results, false on any errno | — |
+| `mysql_query` | 534 | 297 | `PdoExecutor::query`; func validates then calls class with resolved `$link`; class requires `host_info`; func adds **`trigger_error`** on bad link, class does not | warn |
+| `mysql_unbuffered_query` | 652 | 361 | `PdoExecutor::query(..., unbuffered PDO query)`; `empty($link)` → `$currObj`; **no** empty-query or connect guards (unlike `mysql_query`) | — |
+| `mysql_db_query` | 108 | 84 | `PdoExecutor::selectDb` then `PdoExecutor::query` | — |
+| `mysql_multi_query_script` | 160 | 108 | **Extension:** `PdoExecutor::multiQueryScript`, drain results, false on any errno | — |
 
 ---
 
@@ -70,15 +70,15 @@ Human-long signatures: [docs/API.md](../../../docs/API.md). Invariants: [specs/s
 
 | Symbol | Class L | Func L | Backend / notes | Func |
 |--------|---------|--------|-----------------|------|
-| `mysql_fetch_array` | 215 | 119 | `mysqli_fetch_array`; `null` row → `false` | warn |
-| `mysql_fetch_assoc` | 226 | 128 | `mysqli_fetch_assoc`; `null` → `false`; class skips warning if invalid result | warn |
-| `mysql_fetch_row` | 268 | 154 | `mysqli_fetch_row`; `null` → `false` | warn |
-| `mysql_fetch_object` | 253 | 149 | `mysqli_fetch_object` (+ optional ctor `$params`); `null` → `false` | — |
-| `mysql_fetch_field` | 237 | 137 | Seeks with loop when `$field_offset` set, then `mysqli_fetch_field` | — |
-| `mysql_fetch_lengths` | 248 | 143 | `mysqli_fetch_lengths` | — |
-| `mysql_num_rows` | 489 | 276 | `mysqli_num_rows` | warn |
-| `mysql_num_fields` | 480 | 267 | `mysqli_num_fields` | warn |
-| `mysql_data_seek` | 86 | 69 | `mysqli_data_seek` | warn |
+| `mysql_fetch_array` | 215 | 119 | `PdoExecutor::fetchArray`; `null` row → `false` | warn |
+| `mysql_fetch_assoc` | 226 | 128 | `PdoExecutor::fetchAssoc`; `null` → `false`; class skips warning if invalid result | warn |
+| `mysql_fetch_row` | 268 | 154 | `PdoExecutor::fetchRow`; `null` → `false` | warn |
+| `mysql_fetch_object` | 253 | 149 | `PdoExecutor::fetchObject` (+ optional ctor `$params`); `null` → `false` | — |
+| `mysql_fetch_field` | 237 | 137 | Seeks with loop when `$field_offset` set, then `PdoExecutor::fetchFieldDirect` | — |
+| `mysql_fetch_lengths` | 248 | 143 | `PdoExecutor::fetchLengths` | — |
+| `mysql_num_rows` | 489 | 276 | `PdoExecutor::numRows` | warn |
+| `mysql_num_fields` | 480 | 267 | `PdoExecutor::numFields` | warn |
+| `mysql_data_seek` | 86 | 69 | `PdoExecutor::dataSeek` | warn |
 | `mysql_free_result` | 358 | 199 | Invalid result → `true` (no-op) | guard |
 | `mysql_result` | 568 | 323 | Seek row; optional column name scan; else first column | warn |
 
@@ -88,12 +88,12 @@ Human-long signatures: [docs/API.md](../../../docs/API.md). Invariants: [specs/s
 
 | Symbol | Class L | Func L | Backend / notes | Func |
 |--------|---------|--------|-----------------|------|
-| `mysql_field_name` | 317 | 175 | `mysqli_fetch_field_direct` → `name` | — |
+| `mysql_field_name` | 317 | 175 | `PdoExecutor::fetchFieldDirect_direct` → `name` | — |
 | `mysql_field_type` | 339 | 193 | Maps `MYSQLI_TYPE_*` constants to names | — |
-| `mysql_field_len` | 310 | 169 | `mysqli_fetch_field_direct` → `length` | — |
+| `mysql_field_len` | 310 | 169 | `PdoExecutor::fetchFieldDirect_direct` → `length` | — |
 | `mysql_field_flags` | 278 | 163 | Bit decode via `MYSQLI_*_FLAG` constants; lowercase string | — |
-| `mysql_field_table` | 329 | 187 | `mysqli_fetch_field_direct` → `table` | — |
-| `mysql_field_seek` | 324 | 181 | `mysqli_field_seek` | — |
+| `mysql_field_table` | 329 | 187 | `PdoExecutor::fetchFieldDirect_direct` → `table` | — |
+| `mysql_field_seek` | 324 | 181 | `PdoExecutor::fieldSeek` | — |
 
 ---
 
@@ -101,18 +101,18 @@ Human-long signatures: [docs/API.md](../../../docs/API.md). Invariants: [specs/s
 
 | Symbol | Class L | Func L | Backend / notes | Func |
 |--------|---------|--------|-----------------|------|
-| `mysql_errno` | 183 | 96 | `resolveMysqliLink`; no link → `0` | — |
-| `mysql_error` | 193 | 102 | `resolveMysqliLink`; no link → `''` | — |
-| `mysql_affected_rows` | 15 | 33 | Requires valid `mysqli` with `host_info`; else `false` | — |
-| `mysql_insert_id` | 412 | 238 | `mysqli_insert_id` | — |
-| `mysql_info` | 403 | 232 | `mysqli_info` | — |
-| `mysql_stat` | 621 | 343 | `mysqli_stat` | — |
-| `mysql_get_client_info` | 369 | 208 | `mysqli_get_client_info($currObj)` | — |
-| `mysql_get_host_info` | 376 | 214 | `mysqli_get_host_info` | — |
-| `mysql_get_proto_info` | 385 | 220 | `mysqli_get_proto_info` | — |
-| `mysql_get_server_info` | 394 | 226 | `mysqli_get_server_info` | — |
-| `mysql_client_encoding` | 28 | 39 | `mysqli_character_set_name` | — |
-| `mysql_thread_id` | 643 | 355 | `mysqli_thread_id` | — |
+| `mysql_errno` | 183 | 96 | `resolveLink`; no link → `0` | — |
+| `mysql_error` | 193 | 102 | `resolveLink`; no link → `''` | — |
+| `mysql_affected_rows` | 15 | 33 | Requires valid `ShimLink` with `host_info`; else `false` | — |
+| `mysql_insert_id` | 412 | 238 | `PdoExecutor::insertId` | — |
+| `mysql_info` | 403 | 232 | `PdoExecutor::info` | — |
+| `mysql_stat` | 621 | 343 | `PdoExecutor::stat` | — |
+| `mysql_get_client_info` | 369 | 208 | `PdoExecutor::getClientInfo($currObj)` | — |
+| `mysql_get_host_info` | 376 | 214 | `PdoExecutor::getHostInfo` | — |
+| `mysql_get_proto_info` | 385 | 220 | `PdoExecutor::getProtoInfo` | — |
+| `mysql_get_server_info` | 394 | 226 | `PdoExecutor::getServerInfo` | — |
+| `mysql_client_encoding` | 28 | 39 | `PdoExecutor::characterSetName` | — |
+| `mysql_thread_id` | 643 | 355 | `PdoExecutor::threadId` | — |
 
 ---
 
@@ -120,9 +120,9 @@ Human-long signatures: [docs/API.md](../../../docs/API.md). Invariants: [specs/s
 
 | Symbol | Class L | Func L | Backend / notes | Func |
 |--------|---------|--------|-----------------|------|
-| `mysql_real_escape_string` | 555 | 318 | `mysqli_real_escape_string`; if closing/invalid link → `addslashes` | — |
+| `mysql_real_escape_string` | 555 | 318 | `PdoExecutor::realEscapeString`; if closing/invalid link → `addslashes` | — |
 | `mysql_escape_string` | 203 | 113 | Uses `$currObj` or `addslashes`; insecure legacy | dep |
-| `mysql_set_charset` | 612 | 337 | `mysqli_set_charset` | — |
+| `mysql_set_charset` | 612 | 337 | `PdoExecutor::setCharset` | — |
 
 ---
 
@@ -130,18 +130,18 @@ Human-long signatures: [docs/API.md](../../../docs/API.md). Invariants: [specs/s
 
 | Symbol | Class L | Func L | Backend / notes | Func |
 |--------|---------|--------|-----------------|------|
-| `mysql_create_db` | 70 | 63 | ``CREATE DATABASE `$name` `` via `mysqli_query`; bool from errno | — |
+| `mysql_create_db` | 70 | 63 | ``CREATE DATABASE `$name` `` via `PdoExecutor::query`; bool from errno | — |
 | `mysql_drop_db` | 119 | 90 | ``DROP DATABASE `$name` `` | — |
-| `mysql_list_dbs` | 421 | 244 | `SHOW DATABASES` → `mysqli_result` or false | — |
+| `mysql_list_dbs` | 421 | 244 | `SHOW DATABASES` → `ShimResult` or false | — |
 | `mysql_list_tables` | 465 | 261 | ``SHOW TABLES FROM `$database` `` | — |
 | `mysql_list_fields` | 441 | 249 | ``SHOW COLUMNS FROM `$table` `` — **`$database_name` unused in SQL** | — |
-| `mysql_list_processes` | 456 | 255 | Returns **`mysqli_thread_id`** (scalar), not a result set | — |
+| `mysql_list_processes` | 456 | 255 | Returns **`PdoExecutor::threadId`** (scalar), not a result set | — |
 | `mysql_db_name` | 95 | 78 | Seek row; first column of row | — |
 | `mysql_tablename` | 630 | 349 | Same pattern as `mysql_db_name` | — |
 
 ---
 
-## Global constants (`mysql2i.func.php`)
+## Global constants (`mysql2pdo.func.php`)
 
 Defined when shim loads (map to `MYSQLI_*`): `MYSQL_BOTH`, `MYSQL_NUM`, `MYSQL_ASSOC`, `MYSQL_CLIENT_COMPRESS`, `MYSQL_CLIENT_SSL`, `MYSQL_CLIENT_INTERACTIVE`, `MYSQL_CLIENT_IGNORE_SPACE` (L11–L31).
 

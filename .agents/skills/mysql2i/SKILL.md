@@ -1,15 +1,15 @@
 ---
 name: mysql2i
-description: Default procedure for alvesbeto/mysql2i. Strict scope; shim changes only in src/; read shim-behavior before editing.
+description: Default procedure for alvesbeto/mysql2pdo. Strict scope; shim changes only in src/; read shim-behavior before editing.
 ---
 
-# mysql2i
+# mysql2pdo
 
 Map: [../../index.md](../../index.md).
 
 ## Scope
 
-- Change **only** files the user named or the error implicates (usually `src/mysql2i.*`).
+- Change **only** files the user named or the error implicates (usually `src/mysql2pdo.*`).
 - Do not edit `vendor/`, consumer apps, or Webcred from this repo unless explicitly requested.
 
 ## Before coding
@@ -21,7 +21,7 @@ Map: [../../index.md](../../index.md).
 
 ## Shim rules
 
-- Business apps call **`mysql_*` only**; this package owns **`mysqli`** inside `src/`.
+- Business apps call **`mysql_*` only**; this package owns **PDO** inside `src/Mysql2pdo/Driver/`.
 - Keep guards (`class_exists` / `function_exists`) intact.
 - New public surface → update `docs/API.md`, `specs/shim-behavior.md`, `CHANGELOG.md`.
 

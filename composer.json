@@ -1,16 +1,16 @@
 {
-    "name": "alvesbeto/mysql2i",
-    "description": "Legacy mysql_* functions for PHP 8+, implemented on ext-mysqli (compatibility shim)",
+    "name": "alvesbeto/mysql2pdo",
+    "description": "Legacy mysql_* functions for PHP 8+, implemented on ext-pdo (MySQL driver compatibility shim)",
     "type": "library",
     "license": "MIT",
-    "homepage": "https://github.com/alvesbeto/mysql2i",
+    "homepage": "https://github.com/alvesbeto/mysql2pdo",
     "support": {
-        "issues": "https://github.com/alvesbeto/mysql2i/issues",
-        "source": "https://github.com/alvesbeto/mysql2i"
+        "issues": "https://github.com/alvesbeto/mysql2pdo/issues",
+        "source": "https://github.com/alvesbeto/mysql2pdo"
     },
     "keywords": [
         "mysql",
-        "mysqli",
+        "pdo",
         "legacy",
         "shim",
         "php8"
@@ -23,18 +23,30 @@
     ],
     "require": {
         "php": "^8.0",
-        "ext-mysqli": "*"
+        "ext-pdo": "*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^10.5|^11.0"
     },
     "autoload": {
         "psr-4": {
-            "Mysql2i\\": "src/Mysql2i/"
+            "Mysql2pdo\\": "src/Mysql2pdo/"
         },
         "classmap": [
-            "src/mysql2i.class.php"
+            "src/mysql2pdo.class.php"
         ],
         "files": [
-            "src/mysql2i.func.php"
+            "src/mysql2pdo.func.php"
         ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Mysql2pdo\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "bash scripts/run-tests.sh",
+        "test:ci": "bash scripts/run-tests.sh --no-progress"
     },
     "config": {
         "sort-packages": true
