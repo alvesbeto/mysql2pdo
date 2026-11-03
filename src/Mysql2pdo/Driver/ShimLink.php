@@ -25,6 +25,18 @@ final class ShimLink
 
     public ?PDO $pdo = null;
 
+    /** @internal Stored for transparent reconnect after mysql_close() on the same handle. */
+    public ?string $connectionPassword = null;
+
+    /** @internal */
+    public bool $connectionPersistent = false;
+
+    /** @internal */
+    public int $connectionClientFlags = 0;
+
+    /** @internal Last database selected via mysql_select_db(). */
+    public ?string $selectedDatabase = null;
+
     public function __construct(
         public readonly string $host,
         public readonly string $username,

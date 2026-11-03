@@ -3,7 +3,6 @@
 namespace Mysql2pdo\Shim;
 
 use Mysql2pdo\Driver\PdoExecutor;
-use Mysql2pdo\Driver\ShimResult;
 
 /**
  * Shim for mysql_fetch_object().
@@ -12,7 +11,8 @@ final class MysqlFetchObject
 {
     public static function invoke($result, $class_name = 'stdClass', $params = [])
     {
-        if (!$result || !($result instanceof ShimResult)) {
+        $result = ShimGuards::requireResult($result, 'mysql_fetch_object', false);
+        if ($result === null) {
             return false;
         }
 

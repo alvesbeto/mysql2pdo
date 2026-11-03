@@ -3,7 +3,6 @@
 namespace Mysql2pdo\Shim;
 
 use Mysql2pdo\Driver\PdoExecutor;
-use Mysql2pdo\Driver\ShimResult;
 
 /**
  * Shim for mysql_data_seek().
@@ -12,7 +11,8 @@ final class MysqlDataSeek
 {
     public static function invoke($result, $offset)
     {
-        if (!$result || !($result instanceof ShimResult)) {
+        $result = ShimGuards::requireResult($result, 'mysql_data_seek');
+        if ($result === null) {
             return false;
         }
 

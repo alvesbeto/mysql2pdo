@@ -58,7 +58,73 @@ final class PdoExecutor
         }
 
         $link = new ShimLink($host, $username);
+        $link->connectionPassword = $passwd;
+        $link->connectionPersistent = $persistent;
+        $link->connectionClientFlags = $client_flags;
 
+        if (!self::attachPdo($link, $hostForDsn, $username, $passwd, $persistent, $client_flags)) {
+            return false;
+        }
+
+        return $link;
+    }
+
+    /**
+     * Re-open PDO on an existing handle after mysql_close() (legacy apps often close mid-request).
+     */
+    public static function reconnect(ShimLink $link): bool
+    {
+        if ($link->isConnected()) {
+            return true;
+        }
+
+        if ($link->connect_errno !== 0 || $link->connectionPassword === null) {
+            return false;
+        }
+
+        $hostForDsn = $link->host;
+        $persistent = $link->connectionPersistent;
+        if (str_starts_with($hostForDsn, 'p:')) {
+            $hostForDsn = substr($hostForDsn, 2);
+            $persistent = true;
+        }
+
+        if (!self::attachPdo(
+            $link,
+            $hostForDsn,
+            $link->username,
+            $link->connectionPassword,
+            $persistent,
+            $link->connectionClientFlags
+        )) {
+            return false;
+        }
+
+        if ($link->selectedDatabase !== null && $link->selectedDatabase !== '') {
+            self::selectDb($link, $link->selectedDatabase);
+        }
+
+        return $link->isConnected();
+    }
+
+    public static function markIdleConnectionError(ShimLink $link): void
+    {
+        if ($link->lastError !== '') {
+            return;
+        }
+
+        $link->lastErrno = 2006;
+        $link->lastError = 'MySQL server has gone away';
+    }
+
+    private static function attachPdo(
+        ShimLink $link,
+        string $hostForDsn,
+        string $username,
+        string $passwd,
+        bool $persistent,
+        int $client_flags,
+    ): bool {
         $options = [
             PDO::ATTR_ERRMODE => PDO::ERRMODE_SILENT,
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_BOTH,
@@ -89,9 +155,11 @@ final class PdoExecutor
         $link->connect_errno = 0;
         $link->connect_error = '';
         $link->host_info = self::formatHostInfo($hostForDsn);
+        $link->lastErrno = 0;
+        $link->lastError = '';
         self::syncError($link);
 
-        return $link;
+        return true;
     }
 
     public static function closeLink(ShimLink $link): void
@@ -116,6 +184,10 @@ final class PdoExecutor
         $ok = $link->pdo->exec('USE `' . $dbname . '`');
         self::syncError($link);
 
+        if ($ok !== false) {
+            $link->selectedDatabase = $dbname;
+        }
+
         return $ok !== false;
     }
 
@@ -124,7 +196,9 @@ final class PdoExecutor
      */
     public static function query(ShimLink $link, string $query, bool $buffered = true): ShimResult|bool
     {
-        if (!$link->pdo) {
+        if (!$link->pdo && !self::reconnect($link)) {
+            self::markIdleConnectionError($link);
+
             return false;
         }
 
@@ -171,7 +245,17 @@ final class PdoExecutor
     public static function error(ShimLink $link): string
     {
         if (!$link->pdo) {
-            return $link->connect_error;
+            if ($link->lastError !== '') {
+                return $link->lastError;
+            }
+            if ($link->connect_error !== '') {
+                return $link->connect_error;
+            }
+            if ($link->connect_errno === 0 && $link->host_info === null) {
+                return 'MySQL server has gone away';
+            }
+
+            return 'No MySQL connection';
         }
         self::syncError($link);
 

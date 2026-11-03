@@ -3,7 +3,6 @@
 namespace Mysql2pdo\Shim;
 
 use Mysql2pdo\Driver\PdoExecutor;
-use Mysql2pdo\Driver\ShimResult;
 
 /**
  * Shim for mysql_db_name().
@@ -12,7 +11,8 @@ final class MysqlDbName
 {
     public static function invoke($result, $row, $field = null)
     {
-        if (!$result || !($result instanceof ShimResult)) {
+        $result = ShimGuards::requireResult($result, 'mysql_db_name', false);
+        if ($result === null) {
             return false;
         }
 

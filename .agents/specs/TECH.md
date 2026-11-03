@@ -40,6 +40,17 @@ Composer PSR-4 loads namespaced classes. The global `mysql2pdo` facade stays in 
 
 **Namespaced use (optional):** `Mysql2pdo\Shim\MysqlQuery::invoke($sql, $link)` — same behavior as `mysql_query()` / `mysql2pdo::mysql_query()` without the procedural-layer extras.
 
+## Call chain (no duplicate logic)
+
+| Layer | Responsibility |
+|-------|------------------|
+| `mysql_*()` in `mysql2pdo.func.php` | Thin delegate to `mysql2pdo::` except **`mysql_query`** (empty query + `trigger_error` when no connection) and **`mysql_free_result`** (invalid result → `true`) |
+| `mysql2pdo::*` | One-line forward to `Mysql2pdo\Shim\{Name}::invoke()` |
+| `Shim\*::invoke()` | Contract for that symbol; delegates to `PdoExecutor` |
+| `ShimGuards` | Shared invalid **result** checks + optional `E_USER_WARNING` |
+| `ResolveLink` | Current link, **`operationalLink()`**, **`ensureConnectedForQuery()`** (reconnect after close) |
+| `PdoExecutor` | Sole PDO access |
+
 Class loads on first `mysql2pdo::` or `Mysql2pdo\…` use; global functions load at autoload bootstrap.
 
 ## Encapsulation

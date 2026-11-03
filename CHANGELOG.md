@@ -2,6 +2,22 @@
 
 All notable changes to **alvesbeto/mysql2pdo** (PDO-backed `mysql_*` shim).
 
+## [1.0.4] - 2026-11-03
+
+### Added
+
+- **`ShimGuards`** — shared result validation for shims (single place for `E_USER_WARNING` on invalid results).
+- **`ResolveLink::operationalLink()`** — connected link helper for data operations.
+
+### Changed
+
+- **Call chain:** `mysql_*` func layer thin-delegates to shims except `mysql_query` / `mysql_free_result` func-only guards; documented in [TECH.md](.agents/specs/TECH.md).
+
+### Fixed
+
+- **`mysql_query()`** after **`mysql_close()`** on the same handle: transparent reconnect using stored credentials and last **`mysql_select_db()`** (legacy partials that close mid-request).
+- **`mysql_error()`** on a closed handle no longer returns an empty string (maps to **`MySQL server has gone away`** when appropriate).
+
 ## [1.0.3] - 2026-11-03
 
 ### Changed

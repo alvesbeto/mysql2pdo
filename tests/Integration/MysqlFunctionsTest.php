@@ -68,6 +68,20 @@ final class MysqlFunctionsTest extends IntegrationTestCase
         $this->assertTrue(mysql_close(null));
     }
 
+    public function test_mysql_query_after_close_reconnects_same_handle(): void
+    {
+        $link = $this->link;
+        $this->assertTrue(mysql_select_db(TestDatabase::database(), $link));
+        $this->assertTrue(mysql_close($link));
+        $this->assertNull($link->pdo);
+
+        $result = mysql_query('SELECT COUNT(*) AS c FROM mysql2pdo_fn', $link);
+        $this->assertInstanceOf(ShimResult::class, $result);
+        $this->assertTrue($link->isConnected());
+        $row = mysql_fetch_assoc($result);
+        $this->assertIsArray($row);
+    }
+
     public function test_mysql_ping(): void
     {
         $this->assertTrue(mysql_ping($this->link));

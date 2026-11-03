@@ -8,6 +8,7 @@
  */
 use Mysql2pdo\Driver\ShimLink;
 use Mysql2pdo\Driver\ShimResult;
+use Mysql2pdo\ResolveLink;
 
 if (!function_exists('mysql_affected_rows')) {
 
@@ -47,22 +48,6 @@ if (!function_exists('mysql_affected_rows')) {
 
     function mysql_close($link = null)
     {
-        if ($link === null) {
-            $link = mysql2pdo::$currObj ?? null;
-        }
-
-        if (!($link instanceof ShimLink) || $link->connect_errno !== 0) {
-            return true;
-        }
-
-        if (!$link->isConnected()) {
-            if (mysql2pdo::$currObj === $link) {
-                mysql2pdo::$currObj = null;
-            }
-
-            return true;
-        }
-
         return mysql2pdo::mysql_close($link);
     }
 
@@ -79,10 +64,6 @@ if (!function_exists('mysql_affected_rows')) {
 
     function mysql_data_seek($result, $offset)
     {
-        if (!($result instanceof ShimResult)) {
-            trigger_error('mysql_data_seek(): supplied resource is not a valid MySQL result resource', E_USER_WARNING);
-            return false;
-        }
         return mysql2pdo::mysql_data_seek($result, $offset);
     }
 
@@ -129,19 +110,11 @@ if (!function_exists('mysql_affected_rows')) {
 
     function mysql_fetch_array($result, $resulttype = MYSQL_BOTH)
     {
-        if (!($result instanceof ShimResult)) {
-            trigger_error('mysql_fetch_array(): supplied resource is not a valid MySQL result resource', E_USER_WARNING);
-            return false;
-        }
         return mysql2pdo::mysql_fetch_array($result, $resulttype);
     }
 
     function mysql_fetch_assoc($result)
     {
-        if (!($result instanceof ShimResult)) {
-            trigger_error('mysql_fetch_assoc(): supplied resource is not a valid MySQL result resource', E_USER_WARNING);
-            return false;
-        }
         return mysql2pdo::mysql_fetch_assoc($result);
     }
 
@@ -164,10 +137,6 @@ if (!function_exists('mysql_affected_rows')) {
 
     function mysql_fetch_row($result)
     {
-        if (!($result instanceof ShimResult)) {
-            trigger_error('mysql_fetch_row(): supplied resource is not a valid MySQL result resource', E_USER_WARNING);
-            return false;
-        }
         return mysql2pdo::mysql_fetch_row($result);
     }
 
@@ -277,19 +246,11 @@ if (!function_exists('mysql_affected_rows')) {
 
     function mysql_num_fields($result)
     {
-        if (!($result instanceof ShimResult)) {
-            trigger_error('mysql_num_fields(): supplied resource is not a valid MySQL result resource', E_USER_WARNING);
-            return false;
-        }
         return mysql2pdo::mysql_num_fields($result);
     }
 
     function mysql_num_rows($result)
     {
-        if (!($result instanceof ShimResult)) {
-            trigger_error('mysql_num_rows(): supplied resource is not a valid MySQL result resource', E_USER_WARNING);
-            return false;
-        }
         return mysql2pdo::mysql_num_rows($result);
     }
 
@@ -308,21 +269,19 @@ if (!function_exists('mysql_affected_rows')) {
     {
         if (empty($query) || !is_string($query)) {
             trigger_error('mysql_query(): Query cannot be empty', E_USER_WARNING);
+
             return false;
         }
 
-        if ($link === null) {
-            $link = mysql2pdo::$currObj;
-        }
-
-        if (!$link || !($link instanceof ShimLink) || $link->connect_errno) {
-            $errorMsg = $link && ($link instanceof ShimLink) ? $link->connect_error : 'No MySQL connection';
-            error_log('MySQL Connection Error: ' . $errorMsg);
+        $resolved = ResolveLink::ensureConnectedForQuery($link ?? mysql2pdo::$currObj ?? null);
+        if (!$resolved instanceof ShimLink) {
+            error_log('MySQL Connection Error: No MySQL connection');
             trigger_error('mysql_query(): No MySQL connection', E_USER_WARNING);
+
             return false;
         }
 
-        return mysql2pdo::mysql_query($query, $link);
+        return mysql2pdo::mysql_query($query, $resolved);
     }
 
     function mysql_real_escape_string($escapestr, $link = null)
@@ -332,10 +291,6 @@ if (!function_exists('mysql_affected_rows')) {
 
     function mysql_result($result, $row, $field = null)
     {
-        if (!($result instanceof ShimResult)) {
-            trigger_error('mysql_result(): supplied resource is not a valid MySQL result resource', E_USER_WARNING);
-            return false;
-        }
         return mysql2pdo::mysql_result($result, $row, $field);
     }
 

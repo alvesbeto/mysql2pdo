@@ -28,7 +28,7 @@ sources:
 
 Human-long signatures: [docs/API.md](../../../docs/API.md). Invariants: [specs/shim-behavior.md](../../specs/shim-behavior.md). **Registry “PDO / behavior” column:** historical label; since **3.0.0** read as **PDO / behavior**.
 
-**Legend — Func column:** `—` = thin delegate; `warn` = extra `trigger_error`; `dep` = `E_USER_DEPRECATED`; `guard` = pre-check before class.
+**Legend — Func column:** `—` = thin delegate to `mysql2pdo::`; `warn` = extra `trigger_error` in func only; `guard` = pre-check before class. Result/link validation lives in **`Mysql2pdo\Shim\ShimGuards`** and **`ResolveLink`** (not duplicated in func except `mysql_query` / `mysql_free_result` guards).
 
 ---
 

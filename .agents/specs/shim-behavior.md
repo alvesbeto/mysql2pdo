@@ -40,6 +40,12 @@ Func is a **thin delegate** (no extra guards). Class sets `$link = $currObj` whe
 
 Clears `$currObj` when closing that link; **`PdoExecutor::closeLink`** sets `$link->pdo` and `$link->host_info` to **null** only when the link is still connected. **Idempotent:** second `mysql_close()` on the same handle, invalid non-`ShimLink` arguments, and close with no open connection return **`true`** without warnings. Still returns `true` for failed connect handles (`connect_errno` ≠ 0).
 
+**Reconnect:** credentials and last `mysql_select_db()` name stay on the handle. The next **`mysql_query()`** on that same closed handle (or with `$link === null` when `$currObj` was cleared) **reopens PDO** on the handle and restores the selected database when possible — common legacy pattern when a partial closes the link mid-request.
+
+## `mysql_error`
+
+When the handle has no open PDO, returns `lastError`, then `connect_error`, then **`MySQL server has gone away`** for a closed successful handle, else **`No MySQL connection`**.
+
 ## `mysql_info`
 
 Best-effort legacy strings after **write** queries (`INSERT`/`REPLACE`/`UPDATE`/`DELETE`) from PDO `rowCount()` heuristics; **`''`** after `SELECT` or when no recent write. Not bit-identical to the removed C extension.

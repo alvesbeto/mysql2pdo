@@ -4,7 +4,7 @@ namespace Mysql2pdo\Shim;
 
 use Mysql2pdo\Driver\PdoExecutor;
 use Mysql2pdo\Driver\ShimLink;
-use Mysql2pdo\LinkContext;
+use Mysql2pdo\ResolveLink;
 
 /**
  * Shim for mysql_query().
@@ -19,13 +19,9 @@ final class MysqlQuery
             return false;
         }
 
-        if (empty($link)) {
-            $link = LinkContext::getCurrObj();
-        }
-
-        if (!$link || !($link instanceof ShimLink) || $link->connect_errno || !isset($link->host_info)) {
-            $errorMsg = $link && ($link instanceof ShimLink) ? $link->connect_error : 'No MySQL connection';
-            error_log('MySQL Connection Error: ' . $errorMsg);
+        $link = ResolveLink::ensureConnectedForQuery($link);
+        if (!$link instanceof ShimLink) {
+            error_log('MySQL Connection Error: No MySQL connection');
 
             return false;
         }
