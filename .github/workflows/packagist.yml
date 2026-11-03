@@ -1,0 +1,27 @@
+# Sync Packagist when main or version tags change.
+# Requires repository secret PACKAGIST_TOKEN (Packagist profile → Show API Token).
+name: Packagist
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*'
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Packagist update
+        env:
+          PACKAGIST_TOKEN: ${{ secrets.PACKAGIST_TOKEN }}
+        run: |
+          if [ -z "$PACKAGIST_TOKEN" ]; then
+            echo '::warning::PACKAGIST_TOKEN secret not set — skipping. Fix GitHub webhook secret or add this secret.'
+            exit 0
+          fi
+          curl -fsS -X POST \
+            -H "Authorization: Bearer $PACKAGIST_TOKEN" \
+            "https://packagist.org/api/update-package?username=alvesbeto"
+          echo "Packagist update requested for alvesbeto/mysql2pdo"
